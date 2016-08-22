@@ -54,6 +54,14 @@ class QGpkg:
                 print(row['table_name'])
         except sqlite3.Error as e:
             eprint("GeoPackage access error: ", e.args[0])
+        try:
+            rows = list(cur.execute('''SELECT name FROM _qgis'''))
+            if len(rows) > 0:
+                print("QGIS projects:")
+                for row in rows:
+                    print(row['name'])
+        except sqlite3.Error:
+            pass
 
     def tr(self, sourceText, disambiguation=None, n=-1):
         qobj = QObject()
