@@ -12,10 +12,14 @@ def info(args):
 
 
 def write(args):
+    gpkg = QGpkg(args.gpkg)
+    gpkg.write(args.qgs)
     return 0
 
 
 def read(args):
+    gpkg = QGpkg(args.gpkg)
+    gpkg.read(args.gpkg)
     return 0
 
 
@@ -55,7 +59,6 @@ def main():
     subparser = subparsers.add_parser(
         'read', help='Read QGIS project from GeoPackage')
     subparser.add_argument('gpkg', **gpkgparam)
-    subparser.add_argument('qgs', **qgsparam)
     subparser.add_argument(
         '--debug', default=False, action='store_true',
         help='Display debugging information')
