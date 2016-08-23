@@ -103,23 +103,34 @@ class QGpkg:
         xmltree = self.read_project(project_path)
         # If something is messed up with the file, the Method will stop
         if not xmltree:
-            QgsMessageLog.logMessage(self.tr(u"Corrupted project"), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-            # self.iface.messageBar().pushMessage("Error", self.tr(u"There are problems with the project file, please check if everything is working."), level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage(self.tr(
+                u"Corrupted project"),
+                'All-In-One Geopackage', QgsMessageLog.CRITICAL)
+            # self.iface.messageBar().pushMessage("Error", self.tr(
+            #     u"There are problems with the project file, \
+            #     please check if everything is working."),
+            #     level=QgsMessageBar.CRITICAL)
             return
 
-        QgsMessageLog.logMessage(self.tr(u"Xml successfully read"), 'All-In-One Geopackage', QgsMessageLog.INFO)
+        QgsMessageLog.logMessage(self.tr(
+            u"Xml successfully read"),
+            'All-In-One Geopackage', QgsMessageLog.INFO)
         root = xmltree.getroot()
         projectlayers = root.find("projectlayers")
 
         # Search for layersources
         sources = []
         for layer in projectlayers:
-            layer_path = self.make_path_absolute(layer.find("datasource").text.split("|")[0], project_path)
+            layer_path = self.make_path_absolute(layer.find(
+                "datasource").text.split("|")[0], project_path)
             if layer_path not in sources:
-                QgsMessageLog.logMessage(self.tr(u"Found datasource: ") + layer_path, 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"Found datasource: ") + layer_path,
+                    'All-In-One Geopackage', QgsMessageLog.INFO)
                 sources.append(layer_path)
 
-        # If there are more than just one different datasource check from where they are from
+        # If there are more than just one different datasource check from where
+        # they are from
         try:
             if len(sources) >= 1:
                 gpkg_found = False
@@ -129,21 +140,40 @@ class QGpkg:
                             gpkg_found = True
                             gpkg_path = path
                         elif self.check_gpkg(path) and gpkg_found:
-                            # If a project has layer from more than just one GeoPackage
-                            # it can't be written
-                            QgsMessageLog.logMessage(self.tr(u"The project uses layers from different GeoPackage databases."), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-                            # self.iface.messageBar().pushMessage("Error", self.tr(u"The project uses layers from different GeoPackage databases."), level=QgsMessageBar.CRITICAL)
+                            # If a project has layer from more than just one
+                            #  GeoPackage it can't be written
+                            QgsMessageLog.logMessage(self.tr(
+                                u"The project uses layers from different \
+                                GeoPackage databases."),
+                                'All-In-One Geopackage',
+                                QgsMessageLog.CRITICAL)
+                            # self.iface.messageBar().pushMessage(
+                            #     "Error", self.tr(u"The project uses layers \
+                            #         from different GeoPackage databases."),
+                            #     level=QgsMessageBar.CRITICAL)
                             return
                 if gpkg_found and len(sources) > 1:
-                    QgsMessageLog.logMessage(self.tr(u"Some layers aren't in the GeoPackage. It can't be garanteed that all layers will be shown properly."), 'All-In-One Geopackage', QgsMessageLog.WARNING)
-                    # self.iface.messageBar().pushMessage(self.tr(u"Warning"), self.tr(u"Some layers aren't in the GeoPackage. It can't be garanteed that all layers will be shown properly."), level=QgsMessageBar.WARNING)
+                    QgsMessageLog.logMessage(self.tr(
+                        u"Some layers aren't in the GeoPackage. It can't be \
+                        garanteed that all layers will be shown properly."),
+                        'All-In-One Geopackage', QgsMessageLog.WARNING)
+                    # self.iface.messageBar().pushMessage(
+                    #     self.tr(u"Warning"), self.tr(
+                    #         u"Some layers aren't in the GeoPackage. It  \
+                    #         can't be garanteed that all layers will be \
+                    #         shown properly."),
+                    #     level=QgsMessageBar.WARNING)
                 elif not gpkg_found:
                     raise
             else:
                 raise
         except:
-            QgsMessageLog.logMessage(self.tr(u"There is no GeoPackage layer in the project."), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-            # self.iface.messageBar().pushMessage("Error", self.tr(u"There is no GeoPackage layer in the project."), level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage(self.tr(
+                u"There is no GeoPackage layer in the project."),
+                'All-In-One Geopackage', QgsMessageLog.CRITICAL)
+            # self.iface.messageBar().pushMessage("Error", self.tr(
+            #     u"There is no GeoPackage layer in the project."),
+            #     level=QgsMessageBar.CRITICAL)
             return
 
         self.database_connect(gpkg_path)
@@ -153,29 +183,45 @@ class QGpkg:
         images = []
         for composer in composer_list:
             for comp in composer:
-                img = self.make_path_absolute(comp.find("ComposerPicture").attrib['file'], project_path)
+                img = self.make_path_absolute(
+                    comp.find("ComposerPicture").attrib['file'], project_path)
                 if img not in images:
-                    QgsMessageLog.logMessage(self.tr(u"Image found: ") + img, 'All-In-One Geopackage', QgsMessageLog.INFO)
+                    QgsMessageLog.logMessage(
+                        self.tr(u"Image found: ") + img,
+                        'All-In-One Geopackage', QgsMessageLog.INFO)
                     images.append(img)
 
         # Write data in database
         inserts = (os.path.basename(project_path), ET.tostring(root))
-        extensions = (None, None, 'all_in_one_geopackage', 'Insert and read a QGIS Project file into the GeoPackage database.', 'read-write')
+        extensions = (None, None, 'all_in_one_geopackage',
+                      'Insert and read a QGIS Project file into the \
+                      GeoPackage database.', 'read-write')
 
         try:
-            # If a project is already inserted, ask if the user wants to overwrite it
+            # If a project is already inserted, ask if the user wants to
+            # overwrite it
             self.c.execute('SELECT name FROM _qgis')
-            reply = QMessageBox.question(self.parent, self.tr(u"Warning"), self.tr(u"There is already a project in the GeoPackage, \nDo you want to overwrite it?"), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
+            reply = QMessageBox.question(
+                self.parent, self.tr(u"Warning"), self.tr(
+                    u"There is already a project in the GeoPackage, \nDo you \
+                    want to overwrite it?"),
+                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
             if reply:
                 self.c.execute('UPDATE _qgis SET name=?, xml=?', inserts)
-                QgsMessageLog.logMessage(self.tr(u"Project overwritten."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"Project overwritten."),
+                    'All-In-One Geopackage', QgsMessageLog.INFO)
             else:
-                QgsMessageLog.logMessage(self.tr(u"Aborted."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"Aborted."), 'All-In-One Geopackage', QgsMessageLog.INFO)
         except sqlite3.OperationalError:
             self.c.execute('CREATE TABLE _qgis (name text, xml text)')
             self.c.execute('INSERT INTO _qgis VALUES (?,?)', inserts)
-            self.c.execute('INSERT INTO gpkg_extensions VALUES (?,?,?,?,?)', extensions)
-            QgsMessageLog.logMessage(self.tr(u"Project ") + inserts[0] + self.tr(u" was saved."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+            self.c.execute(
+                'INSERT INTO gpkg_extensions VALUES (?,?,?,?,?)', extensions)
+            QgsMessageLog.logMessage(self.tr(
+                u"Project ") + inserts[0] + self.tr(u" was saved."),
+                'All-In-One Geopackage', QgsMessageLog.INFO)
 
         if images:
             # If available, the images will be written in the database
@@ -186,14 +232,20 @@ class QGpkg:
                     self.c.execute('DROP TABLE _img_project')
                     raise sqlite3.OperationalError
             except sqlite3.OperationalError:
-                self.c.execute('CREATE TABLE _img_project (name text, type text, blob blob)')
+                self.c.execute(
+                    """CREATE TABLE _img_project
+                     (name text, type text, blob blob)""")
                 for image in images:
                     with open(image, 'rb') as input_file:
                         blob = input_file.read()
                         name, type = os.path.splitext(os.path.basename(image))
                         inserts = (name, type, sqlite3.Binary(blob))
-                        self.conn.execute('INSERT INTO _img_project VALUES(?, ?, ?)', inserts)
-                        QgsMessageLog.logMessage(self.tr(u"Image ") + name + self.tr(u" was saved"), 'All-In-One Geopackage', QgsMessageLog.INFO)
+                        self.conn.execute(
+                            """INSERT INTO _img_project \
+                            VALUES(?, ?, ?)""", inserts)
+                        QgsMessageLog.logMessage(self.tr(
+                            u"Image ") + name + self.tr(u" was saved"),
+                            'All-In-One Geopackage', QgsMessageLog.INFO)
         self.conn.commit()
 
     def read(self, gpkg_path):
@@ -201,26 +253,40 @@ class QGpkg:
         # Check if it's a GeoPackage Database
         self.database_connect(gpkg_path)
         if not self.check_gpkg(gpkg_path):
-            QgsMessageLog.logMessage(self.tr(u"No GeoPackage selected."), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-            # self.iface.messageBar().pushMessage("Error", self.tr(u"Please choose a GeoPackage."), level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage(self.tr(
+                u"No GeoPackage selected."),
+                'All-In-One Geopackage', QgsMessageLog.CRITICAL)
+            # self.iface.messageBar().pushMessage("Error", self.tr(
+            #     u"Please choose a GeoPackage."),
+            #     level=QgsMessageBar.CRITICAL)
             return
 
         # Read xml from the project in the Database
         try:
             self.c.execute('SELECT name, xml FROM _qgis')
         except sqlite3.OperationalError:
-            QgsMessageLog.logMessage(self.tr(u"There is no Project file in the database."), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-            # self.iface.messageBar().pushMessage("Error", self.tr(u"There is no Project file in the database."), level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage(self.tr(
+                u"There is no Project file in the database."),
+                'All-In-One Geopackage', QgsMessageLog.CRITICAL)
+            # self.iface.messageBar().pushMessage("Error", self.tr(
+            #     u"There is no Project file in the database."),
+            #     level=QgsMessageBar.CRITICAL)
             return
         file_name, xml = self.c.fetchone()
         try:
             xml_tree = ET.ElementTree()
             root = ET.fromstring(xml)
         except:
-            QgsMessageLog.logMessage(self.tr(u"The xml code is corrupted."), 'All-In-One Geopackage', QgsMessageLog.CRITICAL)
-            # self.iface.messageBar().pushMessage("Error", self.tr(u"The xml code is corrupted, please check the database."), level=QgsMessageBar.CRITICAL)
+            QgsMessageLog.logMessage(self.tr(
+                u"The xml code is corrupted."),
+                'All-In-One Geopackage', QgsMessageLog.CRITICAL)
+            # self.iface.messageBar().pushMessage("Error", self.tr(
+            #     u"The xml code is corrupted, please check the database."),
+            #     level=QgsMessageBar.CRITICAL)
             return
-        QgsMessageLog.logMessage(self.tr(u"Xml successfully read."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+        QgsMessageLog.logMessage(
+            self.tr(u"Xml successfully read."),
+            'All-In-One Geopackage', QgsMessageLog.INFO)
         xml_tree._setroot(root)
         projectlayers = root.find("projectlayers")
 
@@ -240,7 +306,10 @@ class QGpkg:
                             layer_element.text += "|" + layer_info[i]
                 elif len(layer_info) == 1:
                     layer_element.text = layer_path
-                QgsMessageLog.logMessage(self.tr(u"Layerpath from layer ") + layer.find("layername").text + self.tr(u" was adjusted."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"Layerpath from layer ") + layer.find(
+                    "layername").text + self.tr(u" was adjusted."),
+                    'All-In-One Geopackage', QgsMessageLog.INFO)
 
         # Check if an image is available
         composer_list = root.findall("Composer")
@@ -248,10 +317,14 @@ class QGpkg:
         for composer in composer_list:
             for comp in composer:
                 composer_picture = comp.find("ComposerPicture")
-                img = self.make_path_absolute(composer_picture.attrib['file'], project_path)
+                img = self.make_path_absolute(
+                    composer_picture.attrib['file'], project_path)
                 # If yes, the path will be adjusted
                 composer_picture.set('file', './' + os.path.basename(img))
-                QgsMessageLog.logMessage(self.tr(u"External image ") + os.path.basename(img) + self.tr(u" found."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"External image ") + os.path.basename(img) + self.tr(
+                    u" found."),
+                    'All-In-One Geopackage', QgsMessageLog.INFO)
                 images.append(img)
 
         # and the image will be saved in the same folder as the project
@@ -264,9 +337,13 @@ class QGpkg:
                 img_path = os.path.join(tmp_folder, img_name)
                 with open(img_path, 'wb') as file:
                     file.write(blob)
-                QgsMessageLog.logMessage(self.tr(u"Image saved: ") + img_name, 'All-In-One Geopackage', QgsMessageLog.INFO)
+                QgsMessageLog.logMessage(self.tr(
+                    u"Image saved: ") + img_name,
+                    'All-In-One Geopackage', QgsMessageLog.INFO)
 
         # Project is saved and started
         xml_tree.write(project_path)
         QgsProject.instance().read(QFileInfo(project_path))
-        QgsMessageLog.logMessage(self.tr(u"Project started."), 'All-In-One Geopackage', QgsMessageLog.INFO)
+        QgsMessageLog.logMessage(
+            self.tr(u"Project started."),
+            'All-In-One Geopackage', QgsMessageLog.INFO)
