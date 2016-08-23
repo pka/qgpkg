@@ -83,7 +83,7 @@ class QGpkg:
             pass
 
         try:
-            rows = list(cur.execute('''SELECT name FROM _qgis'''))
+            rows = list(cur.execute('''SELECT name FROM qgis_projects'''))
             if len(rows) > 0:
                 print("QGIS projects:")
                 for row in rows:
@@ -92,7 +92,7 @@ class QGpkg:
             pass
 
         try:
-            rows = list(cur.execute('''SELECT name, type FROM _img_project'''))
+            rows = list(cur.execute('''SELECT name, type FROM qgis_resources'''))
             if len(rows) > 0:
                 print("QGIS recources:")
                 for row in rows:
@@ -201,27 +201,29 @@ class QGpkg:
 
         # Write data in database
         inserts = (os.path.basename(project_path), ET.tostring(root))
-        extensions = (None, None, 'all_in_one_geopackage',
-                      'Insert and read a QGIS Project file into the \
-                      GeoPackage database.', 'read-write')
+        extensions = (None, None, 'qgis',
+                      'http://github.com/pka/qgpkg/blob/master/\
+                       qgis_geopackage_extension.md',
+                      'read-write')
 
         try:
             # If a project is already inserted, ask if the user wants to
             # overwrite it
-            self.c.execute('SELECT name FROM _qgis')
+            self.c.execute('SELECT name FROM qgis_projects')
             reply = QMessageBox.question(
                 self.parent, self.tr(u"Warning"), self.tr(
                     u"There is already a project in the GeoPackage, \nDo you \
                     want to overwrite it?"),
                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes
             if reply:
-                self.c.execute('UPDATE _qgis SET name=?, xml=?', inserts)
+                self.c.execute('UPDATE qgis_projects SET name=?, xml=?',
+                               inserts)
                 self.log(logging.DEBUG, u"Project overwritten.")
             else:
                 self.log(logging.DEBUG, u"Aborted.")
         except sqlite3.OperationalError:
-            self.c.execute('CREATE TABLE _qgis (name text, xml text)')
-            self.c.execute('INSERT INTO _qgis VALUES (?,?)', inserts)
+            self.c.execute('CREATE TABLE qgis_projects (name text, xml text)')
+            self.c.execute('INSERT INTO qgis_projects VALUES (?,?)', inserts)
             self.c.execute(
                 'INSERT INTO gpkg_extensions VALUES (?,?,?,?,?)', extensions)
             self.log(logging.DEBUG, u"Project %s was saved." % inserts[0])
@@ -229,14 +231,14 @@ class QGpkg:
         if images:
             # If available, the images will be written in the database
             try:
-                self.c.execute('SELECT name FROM _img_project')
+                self.c.execute('SELECT name FROM qgis_resources')
                 # If it's already in there, check for answer for overwriting
                 if reply:
-                    self.c.execute('DROP TABLE _img_project')
+                    self.c.execute('DROP TABLE qgis_resources')
                     raise sqlite3.OperationalError
             except sqlite3.OperationalError:
                 self.c.execute(
-                    """CREATE TABLE _img_project
+                    """CREATE TABLE qgis_resources
                      (name text, type text, blob blob)""")
                 for image in images:
                     with open(image, 'rb') as input_file:
@@ -244,7 +246,7 @@ class QGpkg:
                         name, type = os.path.splitext(os.path.basename(image))
                         inserts = (name, type, sqlite3.Binary(blob))
                         self.conn.execute(
-                            """INSERT INTO _img_project \
+                            """INSERT INTO qgis_resources \
                             VALUES(?, ?, ?)""", inserts)
                         self.log(logging.DEBUG, u"Image %s was saved" % name)
         self.conn.commit()
@@ -259,7 +261,7 @@ class QGpkg:
 
         # Read xml from the project in the Database
         try:
-            self.c.execute('SELECT name, xml FROM _qgis')
+            self.c.execute('SELECT name, xml FROM qgis_projects')
         except sqlite3.OperationalError:
             self.log(logging.ERROR,  u"There is no Project file \
                 in the database.")
@@ -311,7 +313,7 @@ class QGpkg:
 
         # and the image will be saved in the same folder as the project
         if images:
-            self.c.execute("SELECT name, type, blob FROM _img_project")
+            self.c.execute("SELECT name, type, blob FROM qgis_resources")
             images = self.c.fetchall()
             for img in images:
                 name, type, blob = img
