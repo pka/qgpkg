@@ -31,7 +31,7 @@ class QGpkg:
 
     """Load models of Interlis transfer files"""
 
-    def __init__(self, gpkg, logfunc=qlog):
+    def __init__(self, gpkg, logfunc):
         self._gpkg = gpkg
         self._log = logfunc
 
@@ -76,6 +76,14 @@ class QGpkg:
                 print("QGIS projects:")
                 for row in rows:
                     print(row['name'])
+        except sqlite3.Error:
+            pass
+        try:
+            rows = list(cur.execute('''SELECT name, type FROM _img_project'''))
+            if len(rows) > 0:
+                print("QGIS recources:")
+                for row in rows:
+                    print(row['name'] + row['type'])
         except sqlite3.Error:
             pass
 

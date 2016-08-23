@@ -50,6 +50,9 @@ def main():
         'help': "output datagpkg",
         'default': sys.stdout
     }
+    parser.add_argument(
+        '--debug', default=False, action='store_true',
+        help='Display debugging information')
 
     subparser = subparsers.add_parser(
         'info', help='GeoPackage content information')
@@ -60,17 +63,11 @@ def main():
         'write', help='Save QGIS project in GeoPackage')
     subparser.add_argument('gpkg', **gpkgparam)
     subparser.add_argument('qgs', **qgsparam)
-    subparser.add_argument(
-        '--debug', default=False, action='store_true',
-        help='Display debugging information')
     subparser.set_defaults(func=write)
 
     subparser = subparsers.add_parser(
         'read', help='Read QGIS project from GeoPackage')
     subparser.add_argument('gpkg', **gpkgparam)
-    subparser.add_argument(
-        '--debug', default=False, action='store_true',
-        help='Display debugging information')
     subparser.set_defaults(func=read)
 
     args = parser.parse_args()
