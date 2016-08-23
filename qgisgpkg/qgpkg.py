@@ -47,12 +47,14 @@ class QGpkg:
             # Workaround:
             if os.stat(self._gpkg).st_size == 0:
                 os.remove(self._gpkg)
-                self.log(logging.ERROR, "Couldn't find GeoPackage '%s'" % self._gpkg)
+                self.log(logging.ERROR,
+                         "Couldn't find GeoPackage '%s'" % self._gpkg)
                 return None
             conn.row_factory = sqlite3.Row
             return conn.cursor()
         except sqlite3.Error as e:
-            self.log(logging.ERROR, "Couldn't connect to GeoPackage: ", e.args[0])
+            self.log(logging.ERROR,
+                     "Couldn't connect to GeoPackage: %s" % e.args[0])
         return None
 
     def info(self):
@@ -70,6 +72,16 @@ class QGpkg:
                 print(row['table_name'])
         except sqlite3.Error as e:
             self.log(logging.ERROR, "GeoPackage access error: ", e.args[0])
+
+        try:
+            rows = list(cur.execute('''SELECT extension_name FROM gpkg_extensions'''))
+            if len(rows) > 0:
+                print("GPKG extensions:")
+                for row in rows:
+                    print(row['extension_name'])
+        except sqlite3.Error:
+            pass
+
         try:
             rows = list(cur.execute('''SELECT name FROM _qgis'''))
             if len(rows) > 0:
@@ -78,6 +90,7 @@ class QGpkg:
                     print(row['name'])
         except sqlite3.Error:
             pass
+
         try:
             rows = list(cur.execute('''SELECT name, type FROM _img_project'''))
             if len(rows) > 0:

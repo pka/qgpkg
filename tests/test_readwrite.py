@@ -14,7 +14,9 @@ def test_read_without_qgs():
     info = """gpkg_contents features:
 ne_110m_admin_0_countries
 gpkg_contents tiles:
-small_world"""
+small_world
+GPKG extensions:
+gpkg_rtree_index"""
     assert output == info
 
 
@@ -38,6 +40,9 @@ def test_write():
 ne_110m_admin_0_countries
 gpkg_contents tiles:
 small_world
+GPKG extensions:
+all_in_one_geopackage
+gpkg_rtree_index
 QGIS projects:
 small_world.qgs
 QGIS recources:

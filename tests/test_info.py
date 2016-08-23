@@ -10,7 +10,9 @@ def test_info():
     info = """gpkg_contents features:
 ne_110m_admin_0_countries
 gpkg_contents tiles:
-small_world"""
+small_world
+GPKG extensions:
+gpkg_rtree_index"""
     assert output == info
 
 
