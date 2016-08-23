@@ -2,23 +2,32 @@
 
 import argparse
 import sys
+import logging
 from qgisgpkg.qgpkg import QGpkg
 
 
+logger = logging.getLogger('qgpkg')
+logger.addHandler(logging.StreamHandler())
+
+
+def log(lvl, msg, *args, **kwargs):
+    logger.log(lvl, msg, *args, **kwargs)
+
+
 def info(args):
-    gpkg = QGpkg(args.gpkg)
+    gpkg = QGpkg(args.gpkg, log)
     gpkg.info()
     return 0
 
 
 def write(args):
-    gpkg = QGpkg(args.gpkg)
+    gpkg = QGpkg(args.gpkg, log)
     gpkg.write(args.qgs)
     return 0
 
 
 def read(args):
-    gpkg = QGpkg(args.gpkg)
+    gpkg = QGpkg(args.gpkg, log)
     gpkg.read(args.gpkg)
     return 0
 
@@ -65,6 +74,12 @@ def main():
     subparser.set_defaults(func=read)
 
     args = parser.parse_args()
+
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     return args.func(args)
 
 
