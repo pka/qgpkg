@@ -35,7 +35,8 @@ Extension of Existing Requirement in Clause 2.
 
 ## Applicability
 
-This extension applies to additional tables or views listed in the gpkg_contents table with a lowercase data_type column value of "qgis".
+This extension applies to additional tables `qgis_projects`, `qgis_resources` 
+and `qgis_layer_styles`.
 
 ## Scope
 
@@ -56,16 +57,34 @@ An Extended GeoPackage with QGIS support MAY contain the following tables or vie
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
-| name | text | Project name (file name) |
-| xml | text | Project file content (.qgs) in XML format |
+| name | text NOT NULL | Project name (file name) |
+| xml | text NOT NULL | Project file content (.qgs) in XML format |
 
 **qgis_resources**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
-| name | text | Name of resource (file name) |
-| type | text | image|svg |
-| blob | blob | Binary content of file |
+| name | text NOT NULL | Name of resource (file name) |
+| type | text NOT NULL | image|svg |
+| blob | blob NOT NULL | Binary content of file |
+
+**qgis_layer_styles**
+
+| Column | type | Desctiption |
+| --- | --- | --- | --- |
+| id | INTEGER | PRIMARY KEY |
+| f_table_catalog | varchar(256) | |
+| f_table_schema | varchar(256) | |
+| f_table_name | varchar(256) | |
+| f_geometry_column | varchar(256) | |
+| styleName | varchar(30) | |
+| styleQML | text | |
+| styleSLD | text | |
+| useAsDefault | boolean | |
+| description | text | |
+| owner | varchar(30) | |
+| ui | text | |
+| update_time | timestamp | |
 
 ### GeoPackage SQLite Configuration
 
