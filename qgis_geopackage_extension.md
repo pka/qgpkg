@@ -1,10 +1,12 @@
 # GeoPackage 1.0 Extension
 
+**DRAFT**
+
 Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification](http://www.geopackage.org/).
 
 ## Extension Title
 
-QGIS map information
+QGIS map styling information
 
 ## Introduction
 
@@ -12,22 +14,11 @@ Store QGIS projects with their resources like images in print templates in a Geo
 
 ## Extension Author
 
-Pirmin Kalberer
+Pirmin Kalberer, author_name `pka`.
 
 ## Extension Name or Template
 
-```sql
-INSERT INTO gpkg_extensions
-  (table_name, column_name, extension_name, definition, scope)
-VALUES
-  (
-    NULL,
-    NULL,
-    'qgis',
-    'http://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md',
-    'read-write'
-  );
-```
+`qgis`
 
 ## Extension Type
 
@@ -93,11 +84,3 @@ None
 ### GeoPackage SQLite Extension
 
 None
-
-## Abstract Test Suite
-
-N/A
-
-## Examples (Informative)
-
-N/A
