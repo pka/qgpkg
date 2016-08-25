@@ -1,0 +1,39 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=All-in-one Geopackage
+qgisMinimumVersion=2.14
+description=This Plugin writes and reads Project files in Geopackages.
+version=0.1
+author=Cédric Christen
+email=cch@sourcepole.ch
+
+about=This Plugin enables an easy way to share complete Packages of Geodata with others by simply putting the Project file in the GeoPackage database.
+
+tracker=https://github.com/cedi4155476/All_In_One_GeoPackage/issues
+repository=https://github.com/cedi4155476/All_In_One_GeoPackage
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=database, export, import
+
+homepage=https://github.com/cedi4155476/All_In_One_GeoPackage
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+

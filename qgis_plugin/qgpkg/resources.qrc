@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/plugins/AllInOneGeopackage">
+        <file>write.png</file>
+        <file>read.png</file>
+    </qresource>
+</RCC>
