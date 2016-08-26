@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 /***************************************************************************
- AllInOneGeopackage
+ QgisGeopackage
                                  A QGIS plugin
  This Plugin writes and reads Project files in Geopackages.
                               -------------------
@@ -29,21 +29,21 @@ from read import Read
 from write import Write
 
 
-class AllInOneGeopackage(QObject):
+class QgisGeopackage(QObject):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
         QObject.__init__(self)
         self.iface = iface
-        self.toolbar = self.iface.addToolBar(u'All-In-One Geopackage')
-        self.toolbar.setObjectName(u'All-In-One Geopackage')
+        self.toolbar = self.iface.addToolBar(u'Qgis Geopackage')
+        self.toolbar.setObjectName(u'Qgis Geopackage')
 
     def initGui(self):
 
         pluginPath = QFileInfo(os.path.realpath(__file__)).path()
         locale = QSettings().value("locale/userLocale", type=str)[0:2]
         if QFileInfo(pluginPath).exists():
-            localePath = pluginPath + "/i18n/all_in_one_" + locale + ".qm"
+            localePath = pluginPath + "/i18n/qgis_geopackage" + locale + ".qm"
         if QFileInfo(localePath).exists():
             self.translator = QTranslator()
             self.translator.load(localePath)
@@ -52,28 +52,28 @@ class AllInOneGeopackage(QObject):
                 QCoreApplication.installTranslator(self.translator)
 
         self.actionWrite = QAction(
-            QIcon(":/plugins/AllInOneGeopackage/write.png"),
+            QIcon(":/plugins/QgisGeopackage/write.png"),
             self.tr(u"Write project in GeoPackage"),
             self.iface.mainWindow()
         )
         self.actionWrite.setWhatsThis(self.tr(u"Write project in GeoPackage"))
-        self.iface.addPluginToMenu("&All-In-One Geopackage", self.actionWrite)
+        self.iface.addPluginToMenu("&Qgis Geopackage", self.actionWrite)
         self.toolbar.addAction(self.actionWrite)
         QObject.connect(self.actionWrite, SIGNAL("triggered()"), self.write)
 
         self.actionRead = QAction(
-            QIcon(":/plugins/AllInOneGeopackage/read.png"),
+            QIcon(":/plugins/QgisGeopackage/read.png"),
             self.tr(u"Read project from GeoPackage"),
             self.iface.mainWindow()
         )
         self.actionRead.setWhatsThis(self.tr(u"Read project from GeoPackage"))
-        self.iface.addPluginToMenu("&All-In-One Geopackage", self.actionRead)
+        self.iface.addPluginToMenu("&Qgis Geopackage", self.actionRead)
         self.toolbar.addAction(self.actionRead)
         QObject.connect(self.actionRead, SIGNAL("triggered()"), self.read)
 
     def unload(self):
-        self.iface.removePluginMenu("&All-In-One Geopackage", self.actionWrite)
-        self.iface.removePluginMenu("&All-In-One Geopackage", self.actionRead)
+        self.iface.removePluginMenu("&Qgis Geopackage", self.actionWrite)
+        self.iface.removePluginMenu("&Qgis Geopackage", self.actionRead)
         self.iface.removeToolBarIcon(self.actionWrite)
         self.iface.removeToolBarIcon(self.actionRead)
 
@@ -82,7 +82,9 @@ class AllInOneGeopackage(QObject):
         write.run()
 
     def read(self):
-        path = QFileDialog.getOpenFileName(self.iface.mainWindow(), self.tr(u"Choose GeoPackage..."), None, "GeoPackage (*.gpkg)")
+        path = QFileDialog.getOpenFileName(
+            self.iface.mainWindow(), self.tr(u"Choose GeoPackage..."),
+            None, "GeoPackage (*.gpkg)")
         if path:
             read = Read(self.iface, self.iface.mainWindow())
             read.run(path)

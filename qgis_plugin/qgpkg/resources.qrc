@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/AllInOneGeopackage">
+    <qresource prefix="/plugins/QgisGeopackage">
         <file>write.png</file>
         <file>read.png</file>
     </qresource>

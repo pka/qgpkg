@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- AllInOneGeopackage
+ QgisGeopackage
                                  A QGIS plugin
  This Plugin writes and reads Project files in Geopackages.
                              -------------------
@@ -25,11 +25,11 @@
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load AllInOneGeopackage class from file AllInOneGeopackage.
+    """Load QgisGeopackage class from file QgisGeopackage.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .all_in_one import AllInOneGeopackage
-    return AllInOneGeopackage(iface)
+    from .qgis_geopackage import QgisGeopackage
+    return QgisGeopackage(iface)
