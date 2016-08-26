@@ -1,17 +1,19 @@
 [general]
 name=QGIS map styling GeoPackage extension
-version=0.1.1
+version=0.1.2
 qgisMinimumVersion=2.8
-author=Cédric Christen, Pirmin Kalberer
-email=pka@sourcepole.ch
 description=Read and write QGIS project information in GeoPackages.
 about=This plugin reads and writes QGIS projects with related resources
-  (e.g. images used in a print layout) in a GeoPackage file.
+  (e.g. images used in a print layout in a GeoPackage file.
+author=Cédric Christen, Pirmin Kalberer
+email=pka@sourcepole.ch
 
 tracker=https://github.com/pka/qgpkg/issues
 repository=https://github.com/pka/qgpkg
 
-# changelog=
+changelog=
+  0.1.2
+    - Minor changes in metadata.txt
   0.1.1
     - Minor changes in metadata.txt
   0.1
@@ -21,7 +23,7 @@ tags=GeoPackage,gpkg
 
 homepage=https://github.com/pka/qgpkg
 category=Plugins
-icon=icon.png
+icon=write.png
 
 experimental=True
 deprecated=False
