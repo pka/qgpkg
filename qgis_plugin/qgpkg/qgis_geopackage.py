@@ -20,26 +20,44 @@
  *                                                                         *
  ***************************************************************************/
 """
+from qgis.core import QgsProject, QgsMessageLog
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 import resources
 import os
+import tempfile
+import logging
 
-from read import Read
-from write import Write
+from qgpkg import QGpkg
+
+
+message_bar = None
+
+def qlog(lvl, msg, *args, **kwargs):
+    msg_level = 2  # TODO:
+    # QgsMessageBar.INFO  = 0
+    # QgsMessageBar.WARNING   = 1
+    # QgsMessageBar.CRITICAL  = 2
+    # QgsMessageBar.SUCCESS   = 3
+    QgsMessageLog.logMessage(
+        msg, 'QGIS Geopackage', msg_level)
+    if lvl >= logging.WARNING:
+        message_bar.pushMessage(
+            msg, level=msg_level)
 
 
 class QgisGeopackage(QObject):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
+        global message_bar
         QObject.__init__(self)
         self.iface = iface
         self.toolbar = self.iface.addToolBar(u'Qgis Geopackage')
         self.toolbar.setObjectName(u'Qgis Geopackage')
+        message_bar = self.iface.messageBar()
 
     def initGui(self):
-
         pluginPath = QFileInfo(os.path.realpath(__file__)).path()
         locale = QSettings().value("locale/userLocale", type=str)[0:2]
         if QFileInfo(pluginPath).exists():
@@ -78,13 +96,28 @@ class QgisGeopackage(QObject):
         self.iface.removeToolBarIcon(self.actionRead)
 
     def write(self):
-        write = Write(self.iface, self.iface.mainWindow())
-        write.run()
+        project = QgsProject.instance()
+        if project.isDirty():
+            # If the project is dirty
+            # create a temporary file and delete it afterwards
+            tmpfile = os.path.join(tempfile.gettempdir(), "temp_project.qgs")
+            file_info = QFileInfo(tmpfile)
+            project.write(file_info)
+            project_path = project.fileName()
+            project.dirty(True)
+        else:
+            project_path = project.fileName()
+
+        gpkg = QGpkg(project_path, qlog)
+        gpkg.write(project_path)
+        if tmpfile:
+            os.remove(tmpfile)
 
     def read(self):
-        path = QFileDialog.getOpenFileName(
+        gpkg_path = QFileDialog.getOpenFileName(
             self.iface.mainWindow(), self.tr(u"Choose GeoPackage..."),
             None, "GeoPackage (*.gpkg)")
-        if path:
-            read = Read(self.iface, self.iface.mainWindow())
-            read.run(path)
+        if gpkg_path:
+            gpkg = QGpkg(gpkg_path, qlog)
+            project_path = gpkg.read(gpkg_path)
+            QgsProject.instance().read(QFileInfo(project_path))
