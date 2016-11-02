@@ -1,6 +1,6 @@
 [general]
 name=QGIS map styling GeoPackage extension
-version=0.1.4
+version=0.2.0
 qgisMinimumVersion=2.8
 author=Cédric Christen, Pirmin Kalberer
 email=pka@sourcepole.ch
@@ -12,9 +12,11 @@ tracker=https://github.com/pka/qgpkg/issues
 repository=https://github.com/pka/qgpkg
 
 changelog=
+  0.2.0
+    - Bug fixes
   0.1.2-0.1.4
     - Minor changes in metadata.txt
-  0.1
+  0.1.0
     - Initial release
 
 tags=GeoPackage,gpkg
