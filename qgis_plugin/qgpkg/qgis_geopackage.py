@@ -97,10 +97,11 @@ class QgisGeopackage(QObject):
 
     def write(self):
         project = QgsProject.instance()
+        tmpfile = None
         if project.isDirty():
             # If the project is dirty
             # create a temporary file and delete it afterwards
-            tmpfile = os.path.join(tempfile.gettempdir(), "temp_project.qgs")
+            tmpfile = os.path.join(tempfile.gettempdir(), "qgpkg.qgs")
             file_info = QFileInfo(tmpfile)
             project.write(file_info)
             project_path = project.fileName()
@@ -110,8 +111,8 @@ class QgisGeopackage(QObject):
 
         gpkg = QGpkg(project_path, qlog)
         gpkg.write(project_path)
-        if (project.isDirty() and tmpfile):
 
+        if tmpfile:
             os.remove(tmpfile)
 
     def read(self):
