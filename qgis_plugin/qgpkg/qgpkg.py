@@ -6,11 +6,6 @@ import tempfile
 import logging
 from xml.etree import ElementTree as ET
 
-from qgis.core import *
-from qgis.gui import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
 logger = logging.getLogger('qgpkg')
 
 
@@ -202,11 +197,16 @@ class QGpkg:
                            inserts)
             self.log(logging.INFO, u"Project overwritten.")
         except sqlite3.OperationalError:
-            self.c.execute('CREATE TABLE qgis_projects (name text, xml text)')
+            self.c.execute('CREATE TABLE IF NOT EXISTS qgis_projects (name text, xml text)')
             self.c.execute('INSERT INTO qgis_projects VALUES (?,?)', inserts)
+
+            self.c.execute('CREATE TABLE IF NOT EXISTS gpkg_extensions (table_name TEXT,column_name TEXT,extension_name TEXT NOT NULL,definition TEXT NOT NULL,scope TEXT NOT NULL,CONSTRAINT ge_tce UNIQUE (table_name, column_name, extension_name))')
             self.c.execute(
                 'INSERT INTO gpkg_extensions VALUES (?,?,?,?,?)', extensions)
+
             self.log(logging.DEBUG, u"Project %s was saved." % inserts[0])
+
+
 
         if images:
             # If available, the images will be written in the database
@@ -218,7 +218,7 @@ class QGpkg:
                     raise sqlite3.OperationalError
             except sqlite3.OperationalError:
                 self.c.execute(
-                    """CREATE TABLE qgis_resources
+                    """CREATE TABLE IF NOT EXISTS qgis_resources
                      (name text, type text, blob blob)""")
                 for image in images:
                     with open(image, 'rb') as input_file:
