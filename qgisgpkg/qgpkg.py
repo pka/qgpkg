@@ -124,7 +124,7 @@ class QGpkg:
         xmltree = self.read_project(project_path)
         # If something is messed up with the file, the Method will stop
         if not xmltree:
-            self.log(logging.ERROR, u"Corrupted project")
+            self.log(logging.ERROR, u"Couldn't read project (wrong file format)")
             return
 
         self.log(logging.DEBUG, u"Xml successfully read")
@@ -142,32 +142,28 @@ class QGpkg:
 
         # If there are more than just one different datasource check from where
         # they are from
-        try:
-            if len(sources) >= 1:
-                gpkg_found = False
-                for path in sources:
-                    if self.database_connect(path):
-                        if self.check_gpkg(path) and not gpkg_found:
-                            gpkg_found = True
-                            gpkg_path = path
-                        elif self.check_gpkg(path) and gpkg_found:
-                            # If a project has layer from more than just one
-                            #  GeoPackage it can't be written
-                            self.log(logging.ERROR, u"The project uses layers \
-                                from different GeoPackage databases.")
-                            return
-                if gpkg_found and len(sources) > 1:
-                    self.log(
-                        logging.WARNING,
-                        u"Some layers aren't in the GeoPackage. It can't be \
-                        garanteed that all layers will be shown properly.")
-                elif not gpkg_found:
-                    raise
-            else:
-                raise
-        except:
-            self.log(logging.ERROR, u"There is no GeoPackage layer \
-                in the project.")
+        gpkg_found = False
+        if len(sources) >= 1:
+            for path in sources:
+                if self.database_connect(path):
+                    if self.check_gpkg(path) and not gpkg_found:
+                        gpkg_found = True
+                        gpkg_path = path
+                    elif self.check_gpkg(path) and gpkg_found:
+                        # If a project has layer from more than just one
+                        #  GeoPackage it can't be written
+                        self.log(logging.ERROR, u"The project uses layers "
+                            "from different GeoPackage databases.")
+                        return
+            if gpkg_found and len(sources) > 1:
+                self.log(
+                    logging.WARNING,
+                    u"Some layers aren't in the GeoPackage. It can't be "
+                    "garanteed that all layers will be shown properly.")
+
+        if not gpkg_found:
+            self.log(logging.ERROR, u"There is no GeoPackage layer "
+                "in the project.")
             return
 
         self.database_connect(gpkg_path)
@@ -243,8 +239,8 @@ class QGpkg:
         try:
             self.c.execute('SELECT name, xml FROM qgis_projects')
         except sqlite3.OperationalError:
-            self.log(logging.ERROR,  u"There is no Project file \
-                in the database.")
+            self.log(logging.ERROR,  u"There is no Project file "
+                "in the database.")
             return
         file_name, xml = self.c.fetchone()
         try:
