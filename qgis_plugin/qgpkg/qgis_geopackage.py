@@ -110,7 +110,8 @@ class QgisGeopackage(QObject):
 
         gpkg = QGpkg(project_path, qlog)
         gpkg.write(project_path)
-        if tmpfile:
+        if (project.isDirty() and tmpfile):
+
             os.remove(tmpfile)
 
     def read(self):
