@@ -11,7 +11,7 @@ logger = logging.getLogger('qgpkg')
 
 class QGpkg:
 
-    """Load models of Interlis transfer files"""
+    """Read and write QGIS mapping information in a GeoPackage database file"""
 
     def __init__(self, gpkg, logfunc):
         self._gpkg = gpkg
@@ -81,10 +81,6 @@ class QGpkg:
                     print(row['name'] + row['type'])
         except sqlite3.Error:
             pass
-
-    def tr(self, sourceText, disambiguation=None, n=-1):
-        qobj = QObject()
-        return qobj.tr(sourceText, disambiguation, n)
 
     def read_project(self, path):
         ''' Check if it's a file and give ElementTree object back '''
