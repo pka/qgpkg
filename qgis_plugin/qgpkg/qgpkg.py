@@ -123,7 +123,6 @@ class QGpkg:
             self.log(logging.ERROR, u"Couldn't read project (wrong file format)")
             return
 
-        self.log(logging.DEBUG, u"Xml successfully read")
         root = xmltree.getroot()
         projectlayers = root.find("projectlayers")
 
@@ -176,27 +175,28 @@ class QGpkg:
                     images.append(img)
 
         # Write data in database
-        inserts = (os.path.basename(project_path), ET.tostring(root))
+        project_name = os.path.basename(project_path)
+        project_xml = ET.tostring(root)
         extensions = (None, None, 'qgis',
-                      'http://github.com/pka/qgpkg/blob/master/\
-                       qgis_geopackage_extension.md',
+                      'http://github.com/pka/qgpkg/blob/master/'
+                      'qgis_geopackage_extension.md',
                       'read-write')
 
         try:
             # If a project is already inserted, overwrite it
             self.c.execute('SELECT name FROM qgis_projects')
             self.c.execute('UPDATE qgis_projects SET name=?, xml=?',
-                           inserts)
+                           (project_name, project_xml))  # DELETE gives locking problems
             self.log(logging.INFO, u"Project overwritten.")
         except sqlite3.OperationalError:
             self.c.execute('CREATE TABLE IF NOT EXISTS qgis_projects (name text, xml text)')
-            self.c.execute('INSERT INTO qgis_projects VALUES (?,?)', inserts)
+            self.c.execute('INSERT INTO qgis_projects VALUES (?,?)', (project_name, project_xml))
 
             self.c.execute('CREATE TABLE IF NOT EXISTS gpkg_extensions (table_name TEXT,column_name TEXT,extension_name TEXT NOT NULL,definition TEXT NOT NULL,scope TEXT NOT NULL,CONSTRAINT ge_tce UNIQUE (table_name, column_name, extension_name))')
             self.c.execute(
                 'INSERT INTO gpkg_extensions VALUES (?,?,?,?,?)', extensions)
 
-            self.log(logging.DEBUG, u"Project %s was saved." % inserts[0])
+            self.log(logging.DEBUG, u"Project %s saved." % project_name)
 
 
 
@@ -216,10 +216,9 @@ class QGpkg:
                     with open(image, 'rb') as input_file:
                         blob = input_file.read()
                         name, type = os.path.splitext(os.path.basename(image))
-                        inserts = (name, type, sqlite3.Binary(blob))
                         self.conn.execute(
                             """INSERT INTO qgis_resources \
-                            VALUES(?, ?, ?)""", inserts)
+                            VALUES(?, ?, ?)""", (name, type, sqlite3.Binary(blob)))
                         self.log(logging.DEBUG, u"Image %s was saved" % name)
         self.conn.commit()
 
