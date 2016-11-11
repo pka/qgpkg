@@ -1,4 +1,4 @@
-# GeoPackage OWS 1.0 Extension
+# GeoPackage 1.0 Extension
 
 **DRAFT**
 
@@ -6,18 +6,17 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Extension Title
 
-OWS Context information
+OWS Context
 
 ## Introduction
 
-Store context of a mapping project with their styling and resources in a GeoPackage file.
+Goal: Store context of a mapping project including styling and resources in a single GeoPackage file.
 
-Use case is that OWS-context defines a set of layers on a set of data tables using certain styles. Any data table can be referenced by the OWS context multiple times, table ows_style and ows_style-reference define which styles are availbale for that layer.
+Approach: introducing an OWS-context that defines a set of layers on a set of data tables using certain styles. Any data table can be referenced by the OWS context multiple times, table ows_style and ows_style-reference define which styles are available for that layer. Resources from ows_resources can be referenced to from metadata, styles and context, to enable inclusion of images, pdf, etc.
 
-OWS-context defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this scenario we introduce the capability to reference resources local to the Geopackage.
+OWS-context 1.0 defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this scenario we introduce the capability to reference tables local to the Geopackage.
 
-The ows-context specification is extended with an offeringtype="gpkg". OWS context is extended to support referencing resources local to the Geopackage by using #table={table}[ &name={name} ][ &column={column} ].
-
+The ows-context specification is extended with an offeringtype="gpkg" and OWS-context is extended to support referencing resources local to the Geopackage by using #table={table}[&{fieldname}={value}].
 
 ```
 <owc:offering
