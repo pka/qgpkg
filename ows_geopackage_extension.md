@@ -6,7 +6,7 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Extension Title
 
-OWS Context
+**OWS Context**
 
 ## Introduction
 
@@ -16,17 +16,16 @@ Approach: introducing an OWS-context that defines a set of layers on a set of da
 
 OWS-context 1.0 defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this scenario we introduce the capability to reference tables local to the Geopackage.
 
-The ows-context specification is extended with an offeringtype="gpkg" and OWS-context is extended to support referencing resources local to the Geopackage by using #table={table}[&{fieldname}={value}].
+The ows-context specification is extended with an `offeringtype="gpkg"` and OWS-context is extended to support referencing resources local to the Geopackage by using `#table={table}[&{fieldname}={value}]`.
 
 ```xml
-<owc:offering
- code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
- <owc:content type="application/x-sqlite" href="#table=MyPoints" />
- <owc:styleSet>
- <owc:name>simple_point</owc:name>
- <owc:title>Simple point</owc:title>
- <owc:content href="#table=ows_style&name=simplePoint" type="application/sld+xml"/>
-</owc:styleSet>
+<owc:offering code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
+  <owc:content type="application/x-sqlite" href="#table=MyPoints" />
+  <owc:styleSet>
+    <owc:name>simple_point</owc:name>
+    <owc:title>Simple point</owc:title>
+    <owc:content href="#table=ows_style&name=simplePoint" type="application/sld+xml"/>
+  </owc:styleSet>
 </owc:offering>
 ```
 
