@@ -79,6 +79,10 @@ QGIS style library. Used styles are included in project XML.
 | ui | text | |
 | update_time | timestamp | |
 
+
+Additional metadata (authorship, licensing, ...) can be stored in the
+[GeoPackage metadata tables](http://www.geopackage.org/spec/#extension_metadata).
+
 ### GeoPackage SQLite Configuration
 
 None
