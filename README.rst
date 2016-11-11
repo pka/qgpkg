@@ -4,8 +4,10 @@ qgpkg
 Introduction
 ------------
 
-qgpkg implements a `GeoPackage <http://geopackage.org/>`__ extension to store
+qgpkg implements a `GeoPackage <http://geopackage.org/>`_ extension to store
 QGIS mapping information in a GeoPackage database file.
+
+The specification is separated into `QGIS extensions <https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md>`_ and  `OWS context extensions <https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md>`_.
 
 qgpkg library and cli
 ---------------------
