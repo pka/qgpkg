@@ -18,7 +18,7 @@ OWS-context 1.0 defines the capability to reference layers from OWS services and
 
 The ows-context specification is extended with an offeringtype="gpkg" and OWS-context is extended to support referencing resources local to the Geopackage by using #table={table}[&{fieldname}={value}].
 
-```
+```xml
 <owc:offering
  code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
  <owc:content type="application/x-sqlite" href="#table=MyPoints" />
@@ -34,8 +34,8 @@ The ows-context specification is extended with an offeringtype="gpkg" and OWS-co
 
 ## Extension Author
 
-Pirmin Kalberer, author_name `pka`.
 Paul van Genuchten, author_name `pvgenuchten`.
+
 
 ## Extension Name or Template
 
@@ -71,7 +71,7 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 | timestamp | datetime |  |
 | language | text | based on RFC-3066 code|
 | mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context (application/atom+xml or application/json) | 
-| content | text NOT NULL | Content of OWS_Context encoded as indicated in `encoding` |
+| content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
 
 **ows_resources**
 
