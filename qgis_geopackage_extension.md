@@ -6,7 +6,7 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Extension Title
 
-QGIS map styling information
+**QGIS map styling information**
 
 ## Introduction
 
@@ -27,7 +27,7 @@ Extension of Existing Requirement in Clause 2.
 ## Applicability
 
 This extension applies to additional tables `qgis_projects`, `qgis_resources` 
-and `qgis_layer_styles`.
+and `layer_styles`.
 
 ## Scope
 
@@ -48,18 +48,20 @@ An Extended GeoPackage with QGIS support MAY contain the following tables or vie
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
-| name | text NOT NULL | Project name (file name) |
+| name | text NOT NULL UNIQUE | Project name (file name) |
 | xml | text NOT NULL | Project file content (.qgs) in XML format |
 
 **qgis_resources**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
-| name | text NOT NULL | Name of resource (file name) |
-| type | text NOT NULL | image|svg |
-| blob | blob NOT NULL | Binary content of file |
+| name | text NOT NULL UNIQUE | Name of resource (file name) |
+| mime_type | text NOT NULL | [Mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of resource  (`image/png`, `image/svg+xml`, ...)
+| content | blob NOT NULL | Binary content of resource |
 
-**qgis_layer_styles**
+**layer_styles**
+
+QGIS style library. Used styles are included in project XML.
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
