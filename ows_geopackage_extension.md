@@ -30,6 +30,7 @@ The ows-context specification is extended with an offeringtype="gpkg" and OWS-co
 </owc:offering>
 ```
 
+OWC offering MAY include a styleSet reference, if not available, the default style for that layer is taken from owc_style table.
 
 
 ## Extension Author
@@ -39,7 +40,7 @@ Paul van Genuchten, author_name `pvgenuchten`.
 
 ## Extension Name or Template
 
-`ows`
+`owc`
 
 ## Extension Type
 
@@ -47,7 +48,7 @@ Extension of Existing Requirement in Clause 2.
 
 ## Applicability
 
-This extension applies to additional tables `ows_context`, `ows_resources`, `ows_style` and  `ows_style_reference`.
+This extension applies to additional tables `owc_context`, `owc_resources`, `owc_style` and  `owc_style_reference`.
 
 ## Scope
 
@@ -61,7 +62,7 @@ Read-write
 
 An Extended GeoPackage with OWS support MAY contain the following tables or views:
 
-**ows_context**
+**owc_context**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
@@ -73,7 +74,7 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 | mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context (application/atom+xml or application/json) | 
 | content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
 
-**ows_resources**
+**owc_resource**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
@@ -81,7 +82,7 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 | mime_type | text NOT NULL | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the resource  (image/png, application/pdf, ...) |
 | content | blob NOT NULL | Binary content of resource |
 
-**ows_style**
+**owc_style**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
@@ -91,7 +92,7 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 | content | text NOT NuLL | Content of the style encoded as indicated in `mime_type`  |
 | timestamp | datetime | |
 
-**ows_style_reference**
+**owc_style_reference**
 
 | Column | type | Desctiption |
 | --- | --- | --- | --- |
