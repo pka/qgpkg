@@ -122,4 +122,4 @@ class QgisGeopackage(QObject):
         if gpkg_path:
             gpkg = QGpkg(gpkg_path, qlog)
             project_path = gpkg.read(gpkg_path)
-            QgsProject.instance().read(QFileInfo(project_path))
+            #QgsProject.instance().read(QFileInfo(project_path))
