@@ -5,6 +5,11 @@ import sqlite3
 import tempfile
 import logging
 from xml.etree import ElementTree as ET
+from qgis.core import *
+from qgis.utils import *
+from PyQt4.QtXml import *
+from PyQt4.QtCore import *
+
 
 logger = logging.getLogger('qgpkg')
 
@@ -222,6 +227,58 @@ class QGpkg:
                         self.log(logging.DEBUG, u"Image %s was saved" % name)
         self.conn.commit()
 
+    #Load layers from gpkg
+    def loadLayers(self, gpkg_path):
+        iface.addVectorLayer(gpkg_path, "", "ogr")
+
+    #Load named style from table
+    def loadStyle(self, style_name, layer_name):
+        try:
+            self.c.execute("SELECT content FROM ows_style where name like'" + style_name +"'")
+        except sqlite3.OperationalError:
+            self.log(logging.ERROR,  u"Could not find style "
+                 + style_name )
+            return
+        styles= self.c.fetchone()
+
+        #We don't support multiple styles with the same name
+        if len(styles)>1:
+            self.log(logging.ERROR,  u"More than one style found "
+                "named " + style_name )
+            return
+        elif len(styles)==1:
+            style=styles[0]
+
+            layerList = QgsMapLayerRegistry.instance().mapLayersByName(layer_name)
+            if len(layerList)==0:
+                self.log(logging.ERROR,  u"We could not find a loaded layer "
+                    "called " + layer_name )
+                return
+            elif len(layerList)>1:
+                self.log(logging.ERROR,  u"There is more than one loaded layer "
+                    "called " + layer_name )
+                return
+
+            layer=layerList[0]
+
+            f=QTemporaryFile()
+            if f.open():
+                f.write(style)
+                f.close()
+                ret=layer.loadSldStyle(f.fileName())
+
+                if ret:
+                    self.log(logging.DEBUG, "Style '" + style_name +"' loaded")
+                else:
+                    self.log(logging.ERROR, "Style not loaded: " + errorMsg)
+
+                f.remove()
+
+        else:
+            self.log(logging.ERROR,  u"Although there was a reference to style "
+                 + style_name + ", we could not find it in table ows_style. Something is not right!")
+            return
+
     def read(self, gpkg_path):
         ''' Read QGIS project from GeoPackage '''
         # Check if it's a GeoPackage Database
@@ -230,6 +287,39 @@ class QGpkg:
             self.log(logging.ERROR, u"No valid GeoPackage selected.")
             return
 
+        try:
+            self.c.execute('SELECT table_name FROM gpkg_contents')
+        except sqlite3.OperationalError:
+            self.log(logging.ERROR,  u"Unable to read table Name.")
+            return
+
+        table_names = self.c.fetchone()
+
+        #Load Layers
+        self.loadLayers(gpkg_path)
+
+        #Find and apply Styles
+        for layer_name in table_names:
+            try:
+                self.c.execute("SELECT style_name FROM ows_style_reference where table_name like'" + layer_name +"'")
+            except sqlite3.OperationalError:
+                self.log(logging.ERROR,  u"Could not find style "
+                    "for layer " + layer_name )
+                return
+            styles= self.c.fetchone()
+
+            #We don't support more than one style per layer
+            if len(styles)>1:
+                self.log(logging.ERROR,  u"More than one style found "
+                    "for layer " + layer_name )
+                return
+
+            #Found one style: let's apply it
+            elif len(styles) == 1:
+                style_name = styles[0]
+                self.loadStyle(style_name, layer_name)
+
+        '''
         # Read xml from the project in the Database
         try:
             self.c.execute('SELECT name, xml FROM qgis_projects')
@@ -297,4 +387,5 @@ class QGpkg:
         # Project is saved and started
         xml_tree.write(project_path)
         self.log(logging.DEBUG, u"Temporary project written.")
-        return project_path
+        '''
+        return table_names[0]
