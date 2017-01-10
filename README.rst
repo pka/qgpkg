@@ -37,7 +37,7 @@ QGIS plugin
 
 The QGIS plugin adds two buttons to the QGIS GUI. One for saving the current
 project in a GeoPackage file and one for loading a QGIS project from a
-GeoPackage file.
+GeoPackage file. The geopackage file follows [this extension](https://github.com/GeoCat/qgpkg/blob/ows-spec/ows_geopackage_extension.md)
 
 Development
 -----------
