@@ -41,7 +41,8 @@ GeoPackage file. The project is read using `this GeoPackage extension <https://g
 
 Support is given for loading multiple layers and styles from the geopackage.
 
-
+.. image:: screenshot_multiple_layers.png
+   :width: 70%
 
 Development
 -----------
