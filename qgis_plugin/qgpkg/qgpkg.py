@@ -229,10 +229,11 @@ class QGpkg:
 
     #Load layers from gpkg
     def loadLayers(self, gpkg_path):
-        iface.addVectorLayer(gpkg_path, "", "ogr")
+        return iface.addVectorLayer(gpkg_path, "", "ogr")
 
     #Load named style from table
-    def loadStyle(self, style_name, layer_name):
+    def loadStyle(self, style_name, table_name, given_name):
+
         try:
             self.c.execute("SELECT content FROM ows_style where name like'" + style_name +"'")
         except sqlite3.OperationalError:
@@ -241,45 +242,44 @@ class QGpkg:
             return
         styles= self.c.fetchone()
 
-        #We don't support multiple styles with the same name
-        if len(styles)>1:
-            self.log(logging.ERROR,  u"More than one style found "
-                "named " + style_name )
+        if styles is None:
+            self.log(logging.ERROR,  u"Could not find any styles "
+                u"named " + style_name )
             return
-        elif len(styles)==1:
-            style=styles[0]
 
-            layerList = QgsMapLayerRegistry.instance().mapLayersByName(layer_name)
-            if len(layerList)==0:
+        style=styles[0]
+
+        layerList = QgsMapLayerRegistry.instance().mapLayersByName(given_name)
+
+        if layerList is None:
                 self.log(logging.ERROR,  u"We could not find a loaded layer "
-                    "called " + layer_name )
-                return
-            elif len(layerList)>1:
-                self.log(logging.ERROR,  u"There is more than one loaded layer "
-                    "called " + layer_name )
-                return
+                    "called " + given_name + ". Something is not right!" )
 
-            layer=layerList[0]
+        layer=layerList[0]
 
-            f=QTemporaryFile()
-            if f.open():
-                f.write(style)
-                f.close()
-                ret=layer.loadSldStyle(f.fileName())
+        f=QTemporaryFile()
+        if f.open():
+            f.write(style)
+            f.close()
+            ret=layer.loadSldStyle(f.fileName())
 
-                if ret:
-                    self.log(logging.DEBUG, "Style '" + style_name +"' loaded")
-                else:
-                    self.log(logging.ERROR, "Style not loaded: " + errorMsg)
+            if ret:
+                self.log(logging.DEBUG, "Style '" + style_name +"' loaded")
+            else:
+                self.log(logging.ERROR, "Style not loaded: " + errorMsg)
 
-                f.remove()
+            f.remove()
 
         else:
             self.log(logging.ERROR,  u"Although there was a reference to style "
                  + style_name + ", we could not find it in table ows_style. Something is not right!")
             return
 
+    def loadContext(self, context):
+        self.log(logging.DEBUG, "context: " + context)
+
     def read(self, gpkg_path):
+
         ''' Read QGIS project from GeoPackage '''
         # Check if it's a GeoPackage Database
         self.database_connect(gpkg_path)
@@ -293,31 +293,55 @@ class QGpkg:
             self.log(logging.ERROR,  u"Unable to read table Name.")
             return
 
-        table_names = self.c.fetchone()
+        table_names = self.c.fetchall()
 
         #Load Layers
-        self.loadLayers(gpkg_path)
+        layers=self.loadLayers(gpkg_path)
+
+        #Iterate over loaded layers
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        dictLayers={}
+        for layer in layers:
+            for row in table_names:
+                layer_name=row[0]
+                if layer_name==layer.name()[-len(layer_name):]:
+                    #self.log(logging.DEBUG,  u"Layer found: " + layer_name + " for " + layer.name())
+                    dictLayers[layer_name]=layer.name()
+
 
         #Find and apply Styles
-        for layer_name in table_names:
+        for key, value in dictLayers.iteritems():
+
             try:
-                self.c.execute("SELECT style_name FROM ows_style_reference where table_name like'" + layer_name +"'")
+                self.c.execute("SELECT style_name FROM ows_style_reference where table_name like '" + key + "'")
             except sqlite3.OperationalError:
                 self.log(logging.ERROR,  u"Could not find style "
-                    "for layer " + layer_name )
+                    "for layer " + value )
                 return
             styles= self.c.fetchone()
 
-            #We don't support more than one style per layer
-            if len(styles)>1:
-                self.log(logging.ERROR,  u"More than one style found "
-                    "for layer " + layer_name )
+            if styles is None:
+                self.log(logging.ERROR,  u"No style found "
+                    "for layer " + value )
                 return
 
-            #Found one style: let's apply it
-            elif len(styles) == 1:
-                style_name = styles[0]
-                self.loadStyle(style_name, layer_name)
+            style_name = styles[0]
+            self.loadStyle(style_name, key, value)
+
+        #Load OWS Context
+        try:
+            self.c.execute('SELECT content FROM ows_context')
+        except sqlite3.OperationalError:
+            self.log(logging.ERROR,  u"Unable to read table ows_context.")
+            return
+
+        context = self.c.fetchone()
+
+        if context is None:
+            self.log(logging.ERROR,  u"No record found on table ows_context!.")
+            return
+
+        self.loadContext(context[0])
 
         '''
         # Read xml from the project in the Database
