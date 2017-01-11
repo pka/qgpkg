@@ -298,20 +298,21 @@ class QGpkg:
         #Load Layers
         layers=self.loadLayers(gpkg_path)
 
+        db_name=QFileInfo(gpkg_path).baseName()
+
         #Iterate over loaded layers
         layers = QgsMapLayerRegistry.instance().mapLayers().values()
         dictLayers={}
         for layer in layers:
             for row in table_names:
                 layer_name=row[0]
-                if layer_name==layer.name()[-len(layer_name):]:
-                    #self.log(logging.DEBUG,  u"Layer found: " + layer_name + " for " + layer.name())
+                #if layer_name==layer.name()[-len(layer_name):]:
+                if layer.name()==layer_name or layer.name()== db_name + " " + layer_name:
+                    self.log(logging.DEBUG,  u"Layer found: " + layer_name + " for " + layer.name())
                     dictLayers[layer_name]=layer.name()
-
 
         #Find and apply Styles
         for key, value in dictLayers.iteritems():
-
             try:
                 self.c.execute("SELECT style_name FROM ows_style_reference where table_name like '" + key + "'")
             except sqlite3.OperationalError:
