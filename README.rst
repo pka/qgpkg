@@ -40,7 +40,7 @@ project in a GeoPackage file and one for loading a QGIS project from a
 GeoPackage file. The project is read using `this GeoPackage extension <https://github.com/GeoCat/qgpkg/blob/ows-spec/ows_geopackage_extension.md>`_.
 
 Support is given for loading multiple layers and styles from the geopackage.
-The example bellow refers to the geopackage multiple_layers.gpkg, on folder [examples](./examples)
+The example bellow refers to the geopackage multiple_layers.gpkg, on folder `examples <./examples>`_.
 
 .. image:: screenshot_multiple_layers.png
    :width: 70%
