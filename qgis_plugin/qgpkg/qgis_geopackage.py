@@ -77,6 +77,7 @@ class QgisGeopackage(QObject):
         self.actionWrite.setWhatsThis(self.tr(u"Write project in GeoPackage"))
         self.iface.addPluginToMenu("&Qgis Geopackage", self.actionWrite)
         self.toolbar.addAction(self.actionWrite)
+        self.actionWrite.setEnabled(False)
         QObject.connect(self.actionWrite, SIGNAL("triggered()"), self.write)
 
         self.actionRead = QAction(
@@ -122,4 +123,3 @@ class QgisGeopackage(QObject):
         if gpkg_path:
             gpkg = QGpkg(gpkg_path, qlog)
             project_path = gpkg.read(gpkg_path)
-            #QgsProject.instance().read(QFileInfo(project_path))

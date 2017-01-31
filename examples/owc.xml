@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+             xmlns:owc="http://www.opengis.net/owc/1.0"
+             xmlns:georss="http://www.georss.org"
+             xmlns:gml="http://www.opengis.net/gml/1.0"
+             xml:lang="en ">
+<title>a mapping project to test geopackage in qgis</title>
+<link rel="profile"
+href="http://www.opengis.net/spec/owc-atom/1.0/req/core"
+title="This file is compliant with version 1.0 of OGC Context"/>
+<updated>2012-02-21T11:58:23Z</updated>
+<author>
+   <name>Paul</name>
+   <email>paul@geocat.net</email>
+   <uri>http://geocat.net/~paul</uri>
+ </author>
+ <rights>
+ Copyright (c) 2012. Some rights reserved. This feed
+ licensed under a Creative Commons Attribution 3.0 License.
+ </rights>
+ <georss:where>
+   <gml:Polygon>
+     <gml:exterior>
+      <gml:LinearRing>
+        <gml:posList srsDimension="2">-4483330.00 1404270.00 4604460.00 1404270.00 4604460.00 6635460.00 -4483330.00
+6635460.00 -4483330.00 1404270.00</gml:posList>
+      </gml:LinearRing>
+    </gml:exterior>
+  </gml:Polygon>
+ </georss:where>
+<entry>
+  <title>popp</title>
+  <abstract>population</abstract>
+  <author>
+    <name>Paul</name>
+    <email>paul@geocat.net</email>
+  </author>
+  <owc:offering code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
+  <owc:content type="application/x-sqlite" href="#table=popp" />
+  <owc:styleSet>
+  <owc:name>simple_point</owc:name>
+  <owc:title>Simple point</owc:title>
+  <owc:content href="#table=ows_style&amp;name=point" type="application/sld+xml"/>
+  </owc:styleSet>
+  </owc:offering>
+  <link rel="via" type="application/xml" href="#link-to-metadata"/>
+  <owc:minScaleDenominator>2000</owc:minScaleDenominator>
+  <owc:maxScaleDenominator>10000</owc:maxScaleDenominator>
+  <category scheme="http://www.opengis.net/spec/owc/folder" term="population" label="Population Information"/>
+</entry>
+<entry>
+  <title>grassland</title>
+  <abstract>Grassland region</abstract>
+  <author>
+    <name>Joana</name>
+    <email>joana@nowhere.com</email>
+  </author>
+  <owc:offering code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
+  <owc:content type="application/x-sqlite" href="#table=popp" />
+  <owc:styleSet>
+  <owc:name>simple_area</owc:name>
+  <owc:title>Simple area</owc:title>
+  <owc:content href="#table=ows_style&amp;name=area" type="application/sld+xml"/>
+  </owc:styleSet>
+  </owc:offering>
+  <link rel="via" type="application/xml" href="#link-to-metadata"/>
+  <owc:minScaleDenominator>2000</owc:minScaleDenominator>
+  <owc:maxScaleDenominator>10000</owc:maxScaleDenominator>
+  <category scheme="http://www.opengis.net/spec/owc/folder" term="grassland" label="Grassland region"/>
+</entry>
+</feed>

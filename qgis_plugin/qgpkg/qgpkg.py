@@ -9,7 +9,7 @@ from qgis.core import *
 from qgis.utils import *
 from PyQt4.QtXml import *
 from PyQt4.QtCore import *
-
+from StringIO import StringIO
 
 logger = logging.getLogger('qgpkg')
 
@@ -275,10 +275,144 @@ class QGpkg:
                  + style_name + ", we could not find it in table ows_style. Something is not right!")
             return
 
-    def loadContext(self, context):
-        self.log(logging.DEBUG, "context: " + context)
+    def loadContext(self, context, dictLayers):
+        dictProperties=self.parseContext(context)
+        if not dictProperties:
+            self.log(logging.ERROR, u"Could not parse OWC.")
+            return
+
+        if not dictLayers:
+            return
+
+        QgsProject.instance().setTitle(dictProperties["title"])
+
+        bbox=dictProperties["bbox"].split()
+        extent = QgsRectangle(float(bbox[0]),float(bbox[1]),float(bbox[4]),float(bbox[5]))
+        iface.mapCanvas().setExtent( extent )
+        iface.mapCanvas().refresh()
+
+        #We only load metadata for layers which are loaded
+        for key, value in dictLayers.iteritems():
+            lLayerProps=dictProperties["entries"][key]
+
+            layers=QgsMapLayerRegistry.instance().mapLayersByName(value)
+            if (len(layers)!=1):
+                self.log(logging.ERROR, u"Could not match layer entry for " + key)
+                return
+
+            layer=layers[0]
+            layer.setTitle(key)
+            layer.setShortName(key)
+            layer.setAbstract(dictProperties["entries"][key][0])
+            layer.setAttribution(dictProperties["entries"][key][1])
+
+            #layer.setScaleBasedVisibility(True)
+            layer.setMinimumScale(float(dictProperties["entries"][key][2]))
+            layer.setMaximumScale(float(dictProperties["entries"][key][3]))
+
+    def parseContext(self, context):
+        dictProperties={}
+
+        it = ET.iterparse(StringIO(context))
+        for _, el in it:
+            if '}' in el.tag:
+                el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
+        root = it.root
+
+        #Parse project title
+        title_elem = root.find("title")
+        if title_elem is None:
+            self.log(logging.ERROR, u"Could not parse project title.")
+            return
+
+        dictProperties["title"]=title_elem.text
+
+        #TODO: maybe if the OWS server is enabled, we can go on and fill the service capabilities values
+
+        #Parse bbox
+        where_elem = root.find("where")
+        if where_elem is None:
+            self.log(logging.ERROR, u"Could not parse project bbox.")
+            return
+
+        pos_poly = where_elem.find("Polygon")
+        if pos_poly is None:
+            self.log(logging.ERROR, u"Could not parse bbox polygon.")
+            return
+
+        pos_ext = pos_poly.find("exterior")
+        if pos_ext is None:
+            self.log(logging.ERROR, u"Could not parse bbox exterior.")
+            return
+
+        pos_ring = pos_ext.find("LinearRing")
+        if pos_ring is None:
+            self.log(logging.ERROR, u"Could not parse bbox Linear Ring.")
+            return
+
+        pos_elem = pos_ring.find("posList")
+        if pos_elem is None:
+            self.log(logging.ERROR, u"Could not parse bbox coordinates.")
+            return
+
+        dictProperties["bbox"]=pos_elem.text
+
+        entry_elems = root.findall("entry")
+        if entry_elems is None:
+            self.log(logging.ERROR, u"Could not parse project layers.")
+            return
+
+        dictProperties["entries"]={} # hash to store the layer entries
+        for entry_elem in entry_elems:
+            lLayerProps=[] #[abstract, author, min_scale, max_scale]
+            # Read layer title
+            title_elem = entry_elem.find("title")
+            if title_elem is None:
+                self.log(logging.ERROR, u"Could not parse layer title.")
+                return
+
+            # Read layer abstract
+            abstract_elem = entry_elem.find("abstract")
+            if abstract_elem is None:
+                self.log(logging.ERROR, u"Could not parse layer abstract.")
+                return
+
+            lLayerProps.append(abstract_elem.text)
+
+            # Read layer author
+            author_elem = entry_elem.find("author")
+            if author_elem is None:
+                self.log(logging.ERROR, u"Could not parse layer author.")
+                return
+
+            name_elem = author_elem.find("name")
+            if name_elem is None:
+                self.log(logging.ERROR, u"Could not parse layer author name.")
+                return
+
+            lLayerProps.append(name_elem.text)
+
+            # Read min and max scale
+            min_elem = entry_elem.find("minScaleDenominator")
+            if min_elem is None:
+                self.log(logging.ERROR, u"Could not parse min scale denominator.")
+                return
+
+            max_elem = entry_elem.find("maxScaleDenominator")
+            if max_elem is None:
+                self.log(logging.ERROR, u"Could not parse max scale denominator.")
+                return
+
+            lLayerProps.append(min_elem.text)
+            lLayerProps.append(max_elem.text)
+
+            dictProperties["entries"][title_elem.text]=lLayerProps
+
+        return dictProperties
 
     def read(self, gpkg_path):
+
+        iface.newProject(True) # Clear project, before opening
 
         ''' Read QGIS project from GeoPackage '''
         # Check if it's a GeoPackage Database
@@ -306,7 +440,6 @@ class QGpkg:
         for layer in layers:
             for row in table_names:
                 layer_name=row[0]
-                #if layer_name==layer.name()[-len(layer_name):]:
                 if layer.name()==layer_name or layer.name()== db_name + " " + layer_name:
                     self.log(logging.DEBUG,  u"Layer found: " + layer_name + " for " + layer.name())
                     dictLayers[layer_name]=layer.name()
@@ -342,75 +475,4 @@ class QGpkg:
             self.log(logging.ERROR,  u"No record found on table ows_context!.")
             return
 
-        self.loadContext(context[0])
-
-        '''
-        # Read xml from the project in the Database
-        try:
-            self.c.execute('SELECT name, xml FROM qgis_projects')
-        except sqlite3.OperationalError:
-            self.log(logging.ERROR,  u"There is no Project file "
-                "in the database.")
-            return
-        file_name, xml = self.c.fetchone()
-        try:
-            xml_tree = ET.ElementTree()
-            root = ET.fromstring(xml)
-        except:
-            self.log(logging.ERROR, u"The xml code is corrupted.")
-            return
-        self.log(logging.DEBUG, u"Xml successfully read.")
-        xml_tree._setroot(root)
-        projectlayers = root.find("projectlayers")
-
-        # Layerpath in xml adjusted
-        tmp_folder = tempfile.mkdtemp()
-        project_path = os.path.join(tmp_folder, file_name)
-        for layer in projectlayers:
-            layer_element = layer.find("datasource")
-            layer_info = layer_element.text.split("|")
-            layer_path = self.make_path_absolute(gpkg_path, layer_info[0])
-            if layer_path.endswith('.gpkg'):
-                if len(layer_info) >= 2:
-                    for i in range(len(layer_info)):
-                        if i == 0:
-                            layer_element.text = layer_path
-                        else:
-                            layer_element.text += "|" + layer_info[i]
-                elif len(layer_info) == 1:
-                    layer_element.text = layer_path
-                self.log(logging.DEBUG,
-                         u"Layerpath from layer %s was adjusted." %
-                         layer.find("layername").text)
-
-        # Check if an image is available
-        composer_list = root.findall("Composer")
-        images = []
-        for composer in composer_list:
-            for comp in composer:
-                composer_picture = comp.find("ComposerPicture")
-                img = self.make_path_absolute(
-                    composer_picture.attrib['file'], project_path)
-                # If yes, the path will be adjusted
-                composer_picture.set('file', './' + os.path.basename(img))
-                self.log(logging.DEBUG,
-                         u"External image %s found." % os.path.basename(img))
-                images.append(img)
-
-        # and the image will be saved in the same folder as the project
-        if images:
-            self.c.execute("SELECT name, type, blob FROM qgis_resources")
-            images = self.c.fetchall()
-            for img in images:
-                name, type, blob = img
-                img_name = name + type
-                img_path = os.path.join(tmp_folder, img_name)
-                with open(img_path, 'wb') as file:
-                    file.write(blob)
-                self.log(logging.DEBUG, u"Image saved: %s" % img_name)
-
-        # Project is saved and started
-        xml_tree.write(project_path)
-        self.log(logging.DEBUG, u"Temporary project written.")
-        '''
-        return table_names[0]
+        self.loadContext(context[0],dictLayers)
