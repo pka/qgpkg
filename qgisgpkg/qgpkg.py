@@ -286,10 +286,11 @@ class QGpkg:
 
         QgsProject.instance().setTitle(dictProperties["title"])
 
-        bbox=dictProperties["bbox"].split()
-        extent = QgsRectangle(float(bbox[0]),float(bbox[1]),float(bbox[4]),float(bbox[5]))
-        iface.mapCanvas().setExtent( extent )
-        iface.mapCanvas().refresh()
+        if "bbox" in dictProperties:
+            bbox=dictProperties["bbox"].split()
+            extent = QgsRectangle(float(bbox[0]),float(bbox[1]),float(bbox[4]),float(bbox[5]))
+            iface.mapCanvas().setExtent( extent )
+            iface.mapCanvas().refresh()
 
         #We only load metadata for layers which are loaded
         for key, value in dictLayers.iteritems():
@@ -303,14 +304,16 @@ class QGpkg:
             layer=layers[0]
             layer.setTitle(key)
             layer.setShortName(key)
-            layer.setAbstract(dictProperties["entries"][key][0])
-            layer.setAttribution(dictProperties["entries"][key][1])
-
-            #layer.setScaleBasedVisibility(True)
-            layer.setMinimumScale(float(dictProperties["entries"][key][2]))
-            layer.setMaximumScale(float(dictProperties["entries"][key][3]))
-
-            layer.setKeywordList(dictProperties["entries"][key][4])
+            if dictProperties["entries"][key][0] is not None:
+                layer.setAbstract(dictProperties["entries"][key][0])
+            if dictProperties["entries"][key][1] is not None:
+                layer.setAttribution(dictProperties["entries"][key][1])
+            if dictProperties["entries"][key][2] is not None:
+                layer.setMinimumScale(float(dictProperties["entries"][key][2]))
+            if dictProperties["entries"][key][3] is not None:
+                layer.setMaximumScale(float(dictProperties["entries"][key][3]))
+            if dictProperties["entries"][key][4] is not None:
+                layer.setKeywordList(dictProperties["entries"][key][4])
 
     def parseContext(self, context):
         dictProperties={}
@@ -321,7 +324,9 @@ class QGpkg:
                 el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
         root = it.root
 
-        #Parse project title
+        #TODO: optional abstract, publisher
+
+        #Parse project title (mandatory)
         title_elem = root.find("title")
         if title_elem is None:
             self.log(logging.ERROR, u"Could not parse project title.")
@@ -331,97 +336,60 @@ class QGpkg:
 
         #TODO: maybe if the OWS server is enabled, we can go on and fill the service capabilities values
 
-        #Parse bbox
+        #Parse bbox, if it exists
         where_elem = root.find("where")
-        if where_elem is None:
-            self.log(logging.ERROR, u"Could not parse project bbox.")
-            return
-
-        pos_poly = where_elem.find("Polygon")
-        if pos_poly is None:
-            self.log(logging.ERROR, u"Could not parse bbox polygon.")
-            return
-
-        pos_ext = pos_poly.find("exterior")
-        if pos_ext is None:
-            self.log(logging.ERROR, u"Could not parse bbox exterior.")
-            return
-
-        pos_ring = pos_ext.find("LinearRing")
-        if pos_ring is None:
-            self.log(logging.ERROR, u"Could not parse bbox Linear Ring.")
-            return
-
-        pos_elem = pos_ring.find("posList")
-        if pos_elem is None:
-            self.log(logging.ERROR, u"Could not parse bbox coordinates.")
-            return
-
-        dictProperties["bbox"]=pos_elem.text
+        if where_elem is not None:
+            pos_poly = where_elem.find("Polygon")
+            if pos_poly is not None:
+                pos_ext = pos_poly.find("exterior")
+                if pos_ext is not None:
+                    pos_ring = pos_ext.find("LinearRing")
+                    if pos_ring is not None:
+                        pos_elem = pos_ring.find("posList")
+                        if pos_elem is not None:
+                            dictProperties["bbox"]=pos_elem.text
 
         entry_elems = root.findall("entry")
-        if entry_elems is None:
-            self.log(logging.ERROR, u"Could not parse project layers.")
-            return
+        if entry_elems is not None:
 
-        dictProperties["entries"]={} # hash to store the layer entries
-        for entry_elem in entry_elems:
-            lLayerProps=[] #[abstract, author, min_scale, max_scale, term]
-            # Read layer title
-            title_elem = entry_elem.find("title")
-            if title_elem is None:
-                self.log(logging.ERROR, u"Could not parse layer title.")
-                return
+            dictProperties["entries"]={} # hash to store the layer entries
+            for entry_elem in entry_elems:
+                #TODO: add more optional attributes
+                lLayerProps=[] #[abstract, author, min_scale, max_scale, term]
+                # Read layer title (mandatory)
+                title_elem = entry_elem.find("title")
+                if title_elem is None:
+                    self.log(logging.ERROR, u"Could not parse layer title.")
+                    return
 
-            # Read layer abstract
-            abstract_elem = entry_elem.find("abstract")
-            if abstract_elem is None:
-                self.log(logging.ERROR, u"Could not parse layer abstract.")
-                return
+                # Read layer abstract (optional)
+                abstract_elem = entry_elem.find("abstract")
+                lLayerProps.append(abstract_elem.text) if abstract_elem is not None else lLayerProps.append(None)
 
-            lLayerProps.append(abstract_elem.text)
+                # Read layer author (optional)
+                author_elem = entry_elem.find("author")
+                if author_elem is not None:
+                    name_elem = author_elem.find("name")
+                    lLayerProps.append(name_elem.text) if name_elem is not None else lLayerProps.append(None)
+                else:
+                    lLayerProps.append(None)
 
-            # Read layer author
-            author_elem = entry_elem.find("author")
-            if author_elem is None:
-                self.log(logging.ERROR, u"Could not parse layer author.")
-                return
+                # Read min and max scale (optional)
+                min_elem = entry_elem.find("minScaleDenominator")
+                lLayerProps.append(min_elem.text) if min_elem is not None else lLayerProps.append(None)
 
-            name_elem = author_elem.find("name")
-            if name_elem is None:
-                self.log(logging.ERROR, u"Could not parse layer author name.")
-                return
+                max_elem = entry_elem.find("maxScaleDenominator")
+                lLayerProps.append(max_elem.text) if max_elem is not None else lLayerProps.append(None)
 
-            lLayerProps.append(name_elem.text)
+                # Read keyword (optional)
+                cat_elem = entry_elem.find("category")
+                if cat_elem is not None:
+                    term=cat_elem.get("term")
+                    lLayerProps.append(term) if term is not None else lLayerProps.append(None)
+                else:
+                    lLayerProps.append(None)
 
-            # Read min and max scale
-            min_elem = entry_elem.find("minScaleDenominator")
-            if min_elem is None:
-                self.log(logging.ERROR, u"Could not parse min scale denominator.")
-                return
-
-            max_elem = entry_elem.find("maxScaleDenominator")
-            if max_elem is None:
-                self.log(logging.ERROR, u"Could not parse max scale denominator.")
-                return
-
-            lLayerProps.append(min_elem.text)
-            lLayerProps.append(max_elem.text)
-
-            # Read keyword
-            cat_elem = entry_elem.find("category")
-            if cat_elem is None:
-                self.log(logging.ERROR, u"Could not parse category.")
-                return
-            term=cat_elem.get("term")
-            if term is None:
-                self.log(logging.ERROR, u"Could not parse term.")
-                return
-
-            self.log(logging.DEBUG, term)
-            lLayerProps.append(term)
-
-            dictProperties["entries"][title_elem.text]=lLayerProps
+                dictProperties["entries"][title_elem.text]=lLayerProps
 
         return dictProperties
 
