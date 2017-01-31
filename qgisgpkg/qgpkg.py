@@ -310,6 +310,8 @@ class QGpkg:
             layer.setMinimumScale(float(dictProperties["entries"][key][2]))
             layer.setMaximumScale(float(dictProperties["entries"][key][3]))
 
+            layer.setKeywordList(dictProperties["entries"][key][4])
+
     def parseContext(self, context):
         dictProperties={}
 
@@ -364,7 +366,7 @@ class QGpkg:
 
         dictProperties["entries"]={} # hash to store the layer entries
         for entry_elem in entry_elems:
-            lLayerProps=[] #[abstract, author, min_scale, max_scale]
+            lLayerProps=[] #[abstract, author, min_scale, max_scale, term]
             # Read layer title
             title_elem = entry_elem.find("title")
             if title_elem is None:
@@ -405,6 +407,19 @@ class QGpkg:
 
             lLayerProps.append(min_elem.text)
             lLayerProps.append(max_elem.text)
+
+            # Read keyword
+            cat_elem = entry_elem.find("category")
+            if cat_elem is None:
+                self.log(logging.ERROR, u"Could not parse category.")
+                return
+            term=cat_elem.get("term")
+            if term is None:
+                self.log(logging.ERROR, u"Could not parse term.")
+                return
+
+            self.log(logging.DEBUG, term)
+            lLayerProps.append(term)
 
             dictProperties["entries"][title_elem.text]=lLayerProps
 
