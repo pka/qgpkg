@@ -10,7 +10,7 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Introduction
 
-The main goal of the extension is to store context and styling of a mapping project as part of a GeoPackage file containing the data it refers to. The extension aims at similar use cases as presented in (The USGS GeoPackage Styling Experiment in Testbed 12)(http://docs.opengeospatial.org/per/16-037.html), however the approach is a bit different. 
+The main goal of the extension is to store context and styling of a mapping project as part of a GeoPackage file containing the data it refers to. The extension aims at similar use cases as presented in [The USGS GeoPackage Styling Experiment in Testbed 12](http://docs.opengeospatial.org/per/16-037.html), however the approach is a bit different. 
 
 Approach: Table owc_context stores one or multiple OWS Context files that defines a set of layers on a set of data tables using certain styles. Any data table or style can be referenced by a layer in an OWS Context multiple times. Table owc_style  defines which styles are available. Resources from owc_resources can be referenced from metadata, styles or context, to enable inclusion of images, pdf, fonts etc.
 
@@ -34,7 +34,7 @@ OWC offering MUST include a styleSet reference, referencing an external SLD file
 
 ## Extension Author
 
-Paul van Genuchten, author_name `pvgenuchten`.
+Paul van Genuchten, Joana Simoes.
 
 
 ## Extension Name or Template
@@ -72,6 +72,15 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 | mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context (application/atom+xml or application/json) | 
 | content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
 
+**owc_style**
+
+| Column | type | Desctiption |
+|----|-----|----|
+| name | varchar(30) unique | |
+| abstract | text | |
+| mime_type | varchar(30) | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style (application/vnd.sld+xml|text/css|application/json)  |
+| content | text NOT NULL | Content of the style encoded as indicated in `mime_type`  |
+
 **owc_resource**
 
 | Column | type | Desctiption |
@@ -79,16 +88,6 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 | name | varchar(30) unique | Name of resource (file name) |
 | mime_type | text NOT NULL | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the resource  (image/png, application/pdf, ...) |
 | content | blob NOT NULL | Binary content of resource |
-
-**owc_style**
-
-| Column | type | Desctiption |
-|----|-----|----|
-| name | varchar(30) unique | |
-| abstract | text | |
-| mime_type | varchar(30) | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style (application/vnd.sld+xml)  |
-| content | text NOT NULL | Content of the style encoded as indicated in `mime_type`  |
-
 
 
 ### GeoPackage SQLite Configuration
