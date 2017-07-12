@@ -10,13 +10,13 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Introduction
 
-Goal: Store context of a mapping project including styling and resources in a single GeoPackage file.
+The main goal of the extension is to store context and styling of a mapping project as part of a GeoPackage file containing the data it refers to. The extension aims at similar use cases as presented in (The USGS GeoPackage Styling Experiment in Testbed 12)(http://docs.opengeospatial.org/per/16-037.html), however the approach is a bit different. 
 
-Approach: introducing an OWS-context that defines a set of layers on a set of data tables using certain styles. Any data table can be referenced by the OWS context multiple times, table ows_style and ows_style-reference define which styles are available for that layer. Resources from ows_resources can be referenced to from metadata, styles and context, to enable inclusion of images, pdf, etc.
+Approach: Table owc_context stores one or multiple OWS Context files that defines a set of layers on a set of data tables using certain styles. Any data table or style can be referenced by a layer in an OWS Context multiple times. Table owc_style  defines which styles are available. Resources from owc_resources can be referenced from metadata, styles or context, to enable inclusion of images, pdf, fonts etc.
 
-OWS-context 1.0 defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this scenario we introduce the capability to reference tables local to the Geopackage.
+[OWS Context](http://www.owscontext.org/) 1.0 defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this extension we introduce the capability in OWS context to reference tables local to the Geopackage.
 
-The ows-context specification is extended with an `offeringtype="gpkg"` and OWS-context is extended to support referencing resources local to the Geopackage by using `#table={table}[&{fieldname}={value}]`.
+The OWS Context specification is extended with an `offeringtype="gpkg"` and OWS-context is extended to support referencing resources local to the Geopackage by using `#table={table}[&{fieldname}={value}]`.
 
 ```xml
 <owc:offering code="http://www.opengis.net/spec/owc-atom/1.0/req/gpkg">
@@ -24,12 +24,12 @@ The ows-context specification is extended with an `offeringtype="gpkg"` and OWS-
   <owc:styleSet>
     <owc:name>simple_point</owc:name>
     <owc:title>Simple point</owc:title>
-    <owc:content href="#table=ows_style&name=simplePoint" type="application/sld+xml"/>
+    <owc:content href="#table=owc_style&name=simplePoint" type="application/sld+xml"/>
   </owc:styleSet>
 </owc:offering>
 ```
 
-OWC offering MAY include a styleSet reference, if not available, the default style for that layer is taken from owc_style table.
+OWC offering MUST include a styleSet reference, referencing an external SLD file or an SLD from the owc_style table.
 
 
 ## Extension Author
@@ -43,11 +43,11 @@ Paul van Genuchten, author_name `pvgenuchten`.
 
 ## Extension Type
 
-Extension of Existing Requirement in Clause 2.
+Extension of concepts
 
 ## Applicability
 
-This extension applies to additional tables `owc_context`, `owc_resources`, `owc_style` and  `owc_style_reference`.
+This extension applies to additional tables `owc_context`, `owc_resources`, `owc_style`.
 
 ## Scope
 
@@ -59,16 +59,15 @@ Read-write
 
 #### Extension tables
 
-An Extended GeoPackage with OWS support MAY contain the following tables or views:
+An Extended GeoPackage with Context support MAY contain the following tables or views:
 
 **owc_context**
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+|----|-----|----|
 | name | varchar(30) unique | Context name |
 | abstract | text | Context abstract |
 | author | text | Comma separated list of authors |
-| timestamp | datetime |  |
 | language | text | based on RFC-3066 code|
 | mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context (application/atom+xml or application/json) | 
 | content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
@@ -76,7 +75,7 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 **owc_resource**
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+|----|-----|----|
 | name | varchar(30) unique | Name of resource (file name) |
 | mime_type | text NOT NULL | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the resource  (image/png, application/pdf, ...) |
 | content | blob NOT NULL | Binary content of resource |
@@ -84,20 +83,12 @@ An Extended GeoPackage with OWS support MAY contain the following tables or view
 **owc_style**
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+|----|-----|----|
 | name | varchar(30) unique | |
 | abstract | text | |
 | mime_type | varchar(30) | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style (application/vnd.sld+xml)  |
-| content | text NOT NuLL | Content of the style encoded as indicated in `mime_type`  |
-| timestamp | datetime | |
+| content | text NOT NULL | Content of the style encoded as indicated in `mime_type`  |
 
-**owc_style_reference**
-
-| Column | type | Desctiption |
-| --- | --- | --- | --- |
-| table_name | varchar(256) | |
-| style_name | integer | Name of the style to apply for this layer |
-| default | boolean | If the OWS context does not provide a style reference, then use this style as default for the layer |
 
 
 ### GeoPackage SQLite Configuration
