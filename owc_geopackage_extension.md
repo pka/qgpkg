@@ -81,7 +81,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 | mime_type | varchar(30) * | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style ( [application/vnd.sld+xml](http://www.opengeospatial.org/standards/sld) / text/css / application/json)  |
 | content | text NOT NULL | Content of the style encoded as indicated in `mime_type`  |
 
-* A unique index of name and mime_type allows clients to select the most optimal mime-type for rendering (some mime-types may support additional vendor parameters). It is however recommanded to at least provide a style in appliction/vnd.sld+xml.
+A unique index of name and mime_type allows clients to select the most optimal mime-type for rendering (some mime-types may support additional vendor parameters). It is recommended to at least provide one style as appliction/vnd.sld+xml.
 
 **owc_resource**
 
