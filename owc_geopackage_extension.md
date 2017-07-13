@@ -69,7 +69,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 | abstract | text | Context abstract |
 | author | text | Comma separated list of authors |
 | language | text | based on RFC-3066 code|
-| mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context (application/atom+xml or application/json) | 
+| mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context ([application/atom+xml](https://portal.opengeospatial.org/files/?artifact_id=55183) / [application/json](https://github.com/opengeospatial/owscontext/tree/master/json) / [application/vnd.owc+xml](https://portal.opengeospatial.org/files/?artifact_id=55182)) | 
 | content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
 
 **owc_style**
@@ -78,7 +78,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 |----|-----|----|
 | name | varchar(30) unique | |
 | abstract | text | |
-| mime_type | varchar(30) | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style (application/vnd.sld+xml|text/css|application/json)  |
+| mime_type | varchar(30) | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the style ( [application/vnd.sld+xml](http://www.opengeospatial.org/standards/sld) / text/css / application/json)  |
 | content | text NOT NULL | Content of the style encoded as indicated in `mime_type`  |
 
 **owc_resource**
