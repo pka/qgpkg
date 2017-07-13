@@ -24,7 +24,7 @@ The OWS Context specification is extended with an `offeringtype="gpkg"` and OWS-
   <owc:styleSet>
     <owc:name>simple_point</owc:name>
     <owc:title>Simple point</owc:title>
-    <owc:content href="#table=owc_style&name=simplePoint" type="application/sld+xml"/>
+    <owc:content href="#table=owc_style&amp;name=simplePoint" type="application/sld+xml"/>
   </owc:styleSet>
 </owc:offering>
 ```
