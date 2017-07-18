@@ -1,7 +1,8 @@
 [general]
 name=QGIS OWS GeoPackage extension
-version=0.2.0
-qgisMinimumVersion=2.15.0
+version=0.3.0
+qgisMinimumVersion=2.8.0
+qgisMinimumVersion=2.8.7
 author=Joana Simoes
 email=joana.simoes@geocat.net
 description=Read and write QGIS project information in GeoPackages. This plugin is fork of: https://github.com/pka/qgpkg
