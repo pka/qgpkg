@@ -593,6 +593,7 @@ class QGpkg:
         entry_elems = root.findall("entry")  # owc:resource?
         if entry_elems is not None:
 
+            entry_elems.reverse()
             # Load every entry
             for entry_elem in entry_elems:
                 self.loadOWCLayer(gpkg_path, entry_elem)
