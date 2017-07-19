@@ -47,14 +47,14 @@ An Extended GeoPackage with QGIS support MAY contain the following tables or vie
 **qgis_projects**
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | name | text NOT NULL UNIQUE | Project name (file name) |
 | xml | text NOT NULL | Project file content (.qgs) in XML format |
 
 **qgis_resources**
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | name | text NOT NULL UNIQUE | Name of resource (file name) |
 | mime_type | text NOT NULL | [Mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of resource  (`image/png`, `image/svg+xml`, ...)
 | content | blob NOT NULL | Binary content of resource |
@@ -64,7 +64,7 @@ An Extended GeoPackage with QGIS support MAY contain the following tables or vie
 QGIS style library. Used styles are included in project XML.
 
 | Column | type | Desctiption |
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | id | INTEGER | PRIMARY KEY |
 | f_table_catalog | varchar(256) | |
 | f_table_schema | varchar(256) | |
