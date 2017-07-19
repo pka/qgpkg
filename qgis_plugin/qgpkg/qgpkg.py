@@ -272,10 +272,10 @@ class QGpkg:
             ret = layer.loadSldStyle(f.fileName())
             # TODO: add style to default styles?
 
-            if ret:
+            if ret[1] is True:
                 self.log(logging.DEBUG, "Style '" + style_name + "' loaded")
             else:
-                self.log(logging.ERROR, "Style not loaded: " + errorMsg)
+                self.log(logging.ERROR, "Style '" + style_name + "' not loaded: " + ret[0])
 
             f.remove()
 
@@ -353,7 +353,7 @@ class QGpkg:
                 self.log(logging.ERROR, u"Layer '" + name + "' failed to load!")
                 return;
 
-            #layer.setShortName(name)
+            # layer.setShortName(name)
 
             # Check visibility (mandatory)
             visibility = entry_elem.find("category").get("term")
@@ -415,7 +415,7 @@ class QGpkg:
         # Parse keyword (optional)
         keyword_elem = entry_elem.find("keyword")
         if keyword_elem is not None:
-            keywords=[keyword_elem.text]
+            keywords = [keyword_elem.text]
             layer.setKeywordList(keywords)
 
         # Parse minimum scale denominator (optional)
@@ -610,7 +610,6 @@ class QGpkg:
             An handle to the loaded layer.
         """
         return iface.addVectorLayer(gpkg_path + "|layername=" + layername, title, "ogr")
-
 
     def read(self, gpkg_path):
 
