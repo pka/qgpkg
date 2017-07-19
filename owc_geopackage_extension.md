@@ -63,7 +63,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 
 **owc_context**
 
-| Column | type | Desctiption |
+| Column | type | Description |
 |----|-----|----|
 | name | varchar(30) unique | Context name |
 | abstract | text | Context abstract |
@@ -74,7 +74,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 
 **owc_style**
 
-| Column | type | Desctiption |
+| Column | type | Description |
 |----|-----|----|
 | name | varchar(30) * | |
 | abstract | text | |
@@ -85,7 +85,7 @@ A unique index of name and mime_type allows clients to select the most optimal m
 
 **owc_resource**
 
-| Column | type | Desctiption |
+| Column | type | Description |
 |----|-----|----|
 | name | varchar(30) unique | Name of resource (file name) |
 | mime_type | text NOT NULL | The [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of the resource  (image/png, application/pdf, ...) |
