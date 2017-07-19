@@ -9,7 +9,7 @@ QGIS mapping information in a GeoPackage database file.
 
 The specification is separated into `QGIS extensions <https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md>`_ and  `OWS context extensions <https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md>`_.
 
-This fork and branch implements the `OWS context extension`. Please refer to the `_original forked repository <https://github.com/pka/qgpkg>`_, for more information about the components.
+This fork and branch implements the `OWS context extension`. Please refer to the `original forked repository <https://github.com/pka/qgpkg>`_, for more information about the components.
 
 
 QGIS plugin
