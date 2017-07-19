@@ -349,7 +349,7 @@ class QGpkg:
                 return
 
             layer = self.loadLayer(gpkg_path, name, title_elem.text)
-            if not layer.isValid():
+            if layer is None or not layer.isValid():
                 self.log(logging.ERROR, u"Layer '" + name + "' failed to load!")
                 return;
 
