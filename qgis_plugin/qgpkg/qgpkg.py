@@ -363,7 +363,7 @@ class QGpkg:
 
             iface.legendInterface().setLayerVisible(layer, visibility.lower() == 'true')
 
-            # Read style (optional?)
+            # Read style (optional)
             style_elem = offering_elem.find("styleSet")
             if style_elem is not None:
                 self.loadOWCStyle(style_elem, title_elem.text)
@@ -436,7 +436,6 @@ class QGpkg:
 
     def loadOWCStyle(self, style_elem, layer_title):
         """Parses and applies style information from a styleSet, on OWC_context.
-        (Can we have more than one style?)
 
         Args:
             style_elem: The styleSet xml node.

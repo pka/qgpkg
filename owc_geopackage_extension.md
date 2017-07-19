@@ -10,9 +10,9 @@ Extension follows template from Annex I of the OGC [GeoPackage 1.0 Specification
 
 ## Introduction
 
-The main goal of the extension is to store context and styling of a mapping project as part of a GeoPackage file containing the data it refers to. The extension aims at similar use cases as presented in [The USGS GeoPackage Styling Experiment in Testbed 12](http://docs.opengeospatial.org/per/16-037.html), however the approach is a bit different. 
+The main goal of the extension is to store context and styling of a mapping project as part of a GeoPackage file containing the data it refers to. The extension aims at similar use cases as presented in [The USGS GeoPackage Styling Experiment in Testbed 12](http://docs.opengeospatial.org/per/16-037.html), however the approach is a bit different.
 
-Approach: Table owc_context stores one or multiple OWS Context files that defines a set of layers on a set of data tables using certain styles. Any data table or style can be referenced by a layer in an OWS Context multiple times. Table owc_style  defines which styles are available. Resources from owc_resources can be referenced from metadata, styles or context, to enable inclusion of images, pdf, fonts etc.
+Approach: Table owc_context stores one or multiple OWS Context files that defines a set of layers on a set of data tables using certain styles. Each layer is encoded in an `ows:entry` element; each style is encoded **whithin** the layer, as a `ows:offering`, in the `owc:styleSet` element. Any data table or style can be referenced by a layer in an OWS Context multiple times. Table owc_style  defines which styles are available. Resources from owc_resources can be referenced from metadata, styles or context, to enable inclusion of images, pdf, fonts etc.
 
 [OWS Context](http://www.owscontext.org/) 1.0 defines the capability to reference layers from OWS services and certain filetypes (gml/kml). In this extension we introduce the capability in OWS context to reference tables local to the Geopackage.
 
@@ -69,7 +69,7 @@ An Extended GeoPackage with Context support MAY contain the following tables or 
 | abstract | text | Context abstract |
 | author | text | Comma separated list of authors |
 | language | text | based on RFC-3066 code|
-| mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context ([application/atom+xml](https://portal.opengeospatial.org/files/?artifact_id=55183) / [application/json](https://github.com/opengeospatial/owscontext/tree/master/json) / [application/vnd.owc+xml](https://portal.opengeospatial.org/files/?artifact_id=55182)) | 
+| mime_type | text NOT NULL | [mime type](http://www.iana.org/assignments/media-types/media-types.xhtml) of context ([application/atom+xml](https://portal.opengeospatial.org/files/?artifact_id=55183) / [application/json](https://github.com/opengeospatial/owscontext/tree/master/json) / [application/vnd.owc+xml](https://portal.opengeospatial.org/files/?artifact_id=55182)) |
 | content | text NOT NULL | Content of OWS_Context encoded as indicated in `mime_type` |
 
 **owc_style**
