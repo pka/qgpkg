@@ -18,9 +18,9 @@ import sys
 
 # Debug code for Pycharm: remove as you please
 sys.path.append('/home/joana/Downloads/pycharm-2016.3.3/debug-eggs/pycharm-debug.egg')
-import pydevd
+#import pydevd
 
-pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+#pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
 
 class QGpkg:
