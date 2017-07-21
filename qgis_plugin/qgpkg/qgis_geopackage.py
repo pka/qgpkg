@@ -33,6 +33,8 @@ from qgpkg import QGpkg
 from qgpkg_owc import QGpkg_owc
 from qgpkg_qgis import QGpkg_qgis
 
+from qgpkgAbout import qgpkgAbout
+
 message_bar = None
 
 
@@ -63,6 +65,20 @@ class QgisGeopackage(QObject):
     def log(self, lvl, msg, *args, **kwargs):
         self._log(lvl, msg, *args, **kwargs)
 
+    def add_action(self, icon_path, text, callback, enabled_flag=True, add_to_menu=True,  add_to_toolbar=True, status_tip=None, parent=None):
+        icon = QIcon(icon_path)
+        action = QAction(icon, text, parent)
+        action.triggered.connect(callback)
+        action.setEnabled(enabled_flag)
+
+        if status_tip is not None:
+            action.setStatusTip(status_tip)
+
+        if add_to_toolbar:
+            self.toolbar.addAction(action)
+
+        return action
+
     def initGui(self):
         pluginPath = QFileInfo(os.path.realpath(__file__)).path()
         locale = QSettings().value("locale/userLocale", type=str)[0:2]
@@ -74,6 +90,9 @@ class QgisGeopackage(QObject):
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
+
+        # Create the dialogs (after translation) and keep reference
+        self.aboutDlg = qgpkgAbout()
 
         self.actionWrite = QAction(
             QIcon(":/plugins/QgisGeopackage/write.png"),
@@ -96,11 +115,33 @@ class QgisGeopackage(QObject):
         self.toolbar.addAction(self.actionRead)
         QObject.connect(self.actionRead, SIGNAL("triggered()"), self.read)
 
+
+        self.actionAbout = QAction(
+            QIcon(":/plugins/QgisGeopackage/about.png"),
+            self.tr(u"About the Geopackage plugin"),
+            self.iface.mainWindow()
+        )
+        self.actionAbout.setWhatsThis(self.tr(u"About the Geopackage plugin"))
+        self.iface.addPluginToMenu("&Qgis Geopackage", self.actionAbout)
+        self.toolbar.addAction(self.actionAbout)
+        QObject.connect(self.actionAbout, SIGNAL("triggered()"), self.runAbout)
+
+        #self.add_action( ':/plugins/QgisGeopackage/read.png', add_to_toolbar=True,
+         #   text=self.tr(u'About the Geopackage plugin'), callback=self.runAbout,
+          #  parent=self.iface.mainWindow())
+
+
     def unload(self):
         self.iface.removePluginMenu("&Qgis Geopackage", self.actionWrite)
         self.iface.removePluginMenu("&Qgis Geopackage", self.actionRead)
         self.iface.removeToolBarIcon(self.actionWrite)
         self.iface.removeToolBarIcon(self.actionRead)
+
+    def runAbout(self):
+        ' show the dialog'
+        self.aboutDlg.show()
+        # Run the dialog event loop and See if OK was pressed
+        result = self.aboutDlg.exec_()
 
     def write(self):
         project = QgsProject.instance()
