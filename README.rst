@@ -6,18 +6,18 @@ Introduction
 qgpkg uses the OGC `GeoPackage <http://geopackage.org/>`_ specification to store
 QGIS mapping information in a GeoPackage database file.
 
-The OGC geopackage format was designed with the goal of being interoperable across a range of environments, in particular mobile devices operating in offline and near offline scenarios.
+The OGC geopackage format was designed with the goal of **being interoperable across a range of environments, in particular mobile devices operating in offline and near offline scenarios**.
 
 .. image:: workflow.png
    :width: 40%
 
 This plugin introduces two approaches for storing mapping projects, encoded in two different geopackage extensions:
-the [QGIS extension](https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md) and the [OWS context extension](https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md).
+the `QGIS extension <https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md>`_ and the `OWS context extension <https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md>`_.
 
-The goal of the `qgis geopackage extension` is to enable users to share their QGIS projects, including style and resources.
+The goal of the "qgis geopackage extension" is to enable users to share their QGIS projects, including style and resources.
 This extension stores a QGIS project file in one of the extension tables, which works for the described use case, but does not allow interoperability with other GIS software.
 
-The `ows geopackage extension` was designed With the specific goal of enabling interoperability with other GIS sofwtare, being completely based on OGC standards.
+The "ows geopackage extension" was designed With the specific goal of enabling interoperability with other GIS sofwtare, being completely based on OGC standards.
 The idea is to store styling using OGC:SLD, and the project context using OGC:OWS_Context, so that other software can encode/decode this information.
 
 In both extensions, data, resources and style are packed along with project information (e.g.: layer order or visibility, bounding box), enabling a self-contained, portable mapping project.
@@ -26,16 +26,16 @@ QGIS plugin
 -----------
 The QGIS plugin adds three buttons to the QGIS GUI. One for saving the current
 project in a GeoPackage file, another one for loading a QGIS project from a
-GeoPackage file, and a third one to display an `about` dialog.
+GeoPackage file, and a third one to display an "about" dialog.
 
-Support is given for loading multiple layers and styles from the geopackage. In the [examples](./examples) folder you may find examples of
-geopackages using the [qgis](./examples/small_world.gpkg) and [ows](./examples/multiple_layers.gpkg) extensions. The scnreeshot bellow refers to multiple_layers.gpkg:
+Support is given for loading multiple layers and styles from the geopackage. In the `examples <./examples>`_ folder you may find examples of
+geopackages using the `qgis <./examples/small_world.gpkg>`_ and `ows <./examples/multiple_layers.gpkg>`_ extensions. The screenshot bellow refers to "multiple_layers.gpkg":
 
 .. image:: screenshot_multiple_layers.png
    :width: 70%
 
-Although the user can read from either extension, using a detection mechanism, currently the writing operation is only supported for the `qgis extension`.
-If you are interested in writing geopackages using the `ows extension`, please have a look at [ArCGIS GeoCat Bridge](https://www.geocat.net/bridge/).
+Although the user can read from either extension, using a detection mechanism, currently the writing operation is only supported for the "qgis extension".
+If you are interested in writing geopackages using the "ows extension", please have a look at `ArCGIS GeoCat Bridge <https://www.geocat.net/bridge/>`_.
 
 qgpkg library and cli
 ---------------------
@@ -58,24 +58,24 @@ Commands::
       write            Save QGIS project in GeoPackage
       read             Read QGIS project from GeoPackage
 
-Please note that the cli supports **only** for the `qgis extension`.
+Please note that the cli supports **only** for the "qgis extension".
 
 History
 -------
-This plugin was first implemented by Cédric Christen and Pirmin Kalberer (Sourcepole) using the `qgis_extension` approach.
-Later it was forked by Joana Simoes and Paul van Genuchten (GeoCat), who added support to the `ows_extension`.
+This plugin was first implemented by Cédric Christen and Pirmin Kalberer (Sourcepole) using the "qgis_extension" approach.
+Later it was forked by Joana Simoes and Paul van Genuchten (GeoCat), who added support to the "ows_extension".
 The fork was merged into the master branch, to create this version: a plugin which enables users to read projects using either geopackage extension.
 Support to writing in both extensions, is also envisioned for the near future.
 
 Compatibility
 -------------
-This plugin requires QGIS  >= 2.18, compiled using `Qt4` and `PyQt4`.
+This plugin requires "QGIS" >= 2.18, compiled using "Qt4" and "PyQt4".
 
-As the plugin reads `geopackages` generated by ArcGIS GeoCat Bridge, which uses a recent gdal version,
-in order to be able to open those files you **need** to compile QGIS with `gdal` >=2.0.
+As the plugin reads geopackages generated by ArcGIS GeoCat Bridge, which uses a recent gdal version,
+in order to be able to open those files you **need** to compile QGIS with "gdal" >=2.0.
 
 Unfortunately, in the ubuntu/linux public repositories, there are no QGIS packages compiled against gdal2.
-However if you are on OS X, you can use the package compiled by [King Chaos](http://www.kyngchaos.com/software/qgis).
+However if you are on OS X, you can use the package compiled by `King Chaos <http://www.kyngchaos.com/software/qgis>`_.
 
 Development
 -----------
@@ -83,8 +83,8 @@ Development
 
 Issues
 ------
-You are welcome to report any issues using the [github track](https://github.com/pka/qgpkg/issues).
+You are welcome to report any issues using the `github track <https://github.com/pka/qgpkg/issues>`_.
 
 License
 -------
-This project is released under an **MIT license**. Please refer to [License.txt](https://github.com/pka/qgpkg/blob/master/LICENSE.txt) for more details.
+This project is released under an **MIT license**. Please refer to `License.txt <https://github.com/pka/qgpkg/blob/master/LICENSE.txt>`_ for more details.
