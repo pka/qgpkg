@@ -1,17 +1,32 @@
 [general]
-name=QGIS OWS GeoPackage extension
+name=QGIS map project GeoPackage extension
 version=0.3.0
-qgisMinimumVersion=2.8.0
-qgisMinimumVersion=2.8.7
-author=Joana Simoes
-email=joana.simoes@geocat.net
-description=Read and write QGIS project information in GeoPackages. This plugin is fork of: https://github.com/pka/qgpkg
-about=This plugin reads and writes QGIS projects  in a GeoPackage file.
+qgisMinimumVersion=2.8
+author=Cédric Christen, Pirmin Kalberer, Joana Simoes, Paul van Genuchten
+email=pka@sourcepole.ch, joana.simoes@geocat.net
+description=Read and write QGIS project information in GeoPackages, using the qgis or ows geopackage extensions.
+about=This plugin reads and writes QGIS projects with related resources (e.g. images used in a print layout) and style in a GeoPackage file.
 
-tracker=https://github.com/GeoCat/qgpkg/issues
-repository=https://github.com/GeoCat/qgpkg
+tracker=https://github.com/pka/qgpkg/issues
+repository=https://github.com/pka/qgpkg
 
 homepage=https://github.com/GeoCat/qgpkg
+category=Plugins
+icon=write.png
+
+changelog=
+  0.3.0
+    - Added support to the ows geopackage extension
+  0.2.0
+    - Bug fixes
+  0.1.2-0.1.4
+    - Minor changes in metadata.txt
+  0.1.0
+    - Initial release
+
+tags=GeoPackage,gpkg
+
+homepage=https://github.com/pka/qgpkg
 category=Plugins
 icon=write.png
 
