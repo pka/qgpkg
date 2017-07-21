@@ -9,7 +9,7 @@ QGIS mapping information in a GeoPackage database file.
 The OGC geopackage format was designed with the goal of being interoperable across a range of environments, in particular mobile devices operating in offline and near offline scenarios.
 
 .. image:: workflow.png
-   :width: 70%
+   :width: 40%
 
 This plugin introduces two approaches for storing mapping projects, encoded in two different geopackage extensions:
 the [QGIS extension](https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md) and the [OWS context extension](https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md).
