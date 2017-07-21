@@ -126,10 +126,6 @@ class QgisGeopackage(QObject):
         self.toolbar.addAction(self.actionAbout)
         QObject.connect(self.actionAbout, SIGNAL("triggered()"), self.runAbout)
 
-        #self.add_action( ':/plugins/QgisGeopackage/read.png', add_to_toolbar=True,
-         #   text=self.tr(u'About the Geopackage plugin'), callback=self.runAbout,
-          #  parent=self.iface.mainWindow())
-
 
     def unload(self):
         self.iface.removePluginMenu("&Qgis Geopackage", self.actionWrite)
