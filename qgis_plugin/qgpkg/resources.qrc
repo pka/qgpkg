@@ -2,5 +2,6 @@
     <qresource prefix="/plugins/QgisGeopackage">
         <file>write.png</file>
         <file>read.png</file>
+        <file>about.png</file>
     </qresource>
 </RCC>
