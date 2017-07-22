@@ -5,6 +5,11 @@ import sqlite3
 import tempfile
 import logging
 from xml.etree import ElementTree as ET
+from qgis.core import *
+from qgis.utils import *
+from PyQt4.QtXml import *
+from PyQt4.QtCore import *
+from StringIO import StringIO
 
 logger = logging.getLogger('qgpkg')
 
@@ -222,7 +227,176 @@ class QGpkg:
                         self.log(logging.DEBUG, u"Image %s was saved" % name)
         self.conn.commit()
 
+    #Load layers from gpkg
+    def loadLayers(self, gpkg_path):
+        return iface.addVectorLayer(gpkg_path, "", "ogr")
+
+    #Load named style from table
+    def loadStyle(self, style_name, table_name, given_name):
+
+        try:
+            self.c.execute("SELECT content FROM ows_style where name like'" + style_name +"'")
+        except sqlite3.OperationalError:
+            self.log(logging.ERROR,  u"Could not find style "
+                 + style_name )
+            return
+        styles= self.c.fetchone()
+
+        if styles is None:
+            self.log(logging.ERROR,  u"Could not find any styles "
+                u"named " + style_name )
+            return
+
+        style=styles[0]
+
+        layerList = QgsMapLayerRegistry.instance().mapLayersByName(given_name)
+
+        if layerList is None:
+                self.log(logging.ERROR,  u"We could not find a loaded layer "
+                    "called " + given_name + ". Something is not right!" )
+
+        layer=layerList[0]
+
+        f=QTemporaryFile()
+        if f.open():
+            f.write(style)
+            f.close()
+            ret=layer.loadSldStyle(f.fileName())
+
+            if ret:
+                self.log(logging.DEBUG, "Style '" + style_name +"' loaded")
+            else:
+                self.log(logging.ERROR, "Style not loaded: " + errorMsg)
+
+            f.remove()
+
+        else:
+            self.log(logging.ERROR,  u"Although there was a reference to style "
+                 + style_name + ", we could not find it in table ows_style. Something is not right!")
+            return
+
+    def loadContext(self, context, dictLayers):
+        dictProperties=self.parseContext(context)
+        if not dictProperties:
+            self.log(logging.ERROR, u"Could not parse OWC.")
+            return
+
+        if not dictLayers:
+            return
+
+        QgsProject.instance().setTitle(dictProperties["title"])
+
+        if "bbox" in dictProperties:
+            bbox=dictProperties["bbox"].split()
+            extent = QgsRectangle(float(bbox[0]),float(bbox[1]),float(bbox[4]),float(bbox[5]))
+            iface.mapCanvas().setExtent( extent )
+            iface.mapCanvas().refresh()
+
+        #We only load metadata for layers which are loaded
+        for key, value in dictLayers.iteritems():
+            lLayerProps=dictProperties["entries"][key]
+
+            layers=QgsMapLayerRegistry.instance().mapLayersByName(value)
+            if (len(layers)!=1):
+                self.log(logging.ERROR, u"Could not match layer entry for " + key)
+                return
+
+            layer=layers[0]
+            layer.setTitle(key)
+            layer.setShortName(key)
+            if dictProperties["entries"][key][0] is not None:
+                layer.setAbstract(dictProperties["entries"][key][0])
+            if dictProperties["entries"][key][1] is not None:
+                layer.setAttribution(dictProperties["entries"][key][1])
+            if dictProperties["entries"][key][2] is not None:
+                layer.setMinimumScale(float(dictProperties["entries"][key][2]))
+            if dictProperties["entries"][key][3] is not None:
+                layer.setMaximumScale(float(dictProperties["entries"][key][3]))
+            if dictProperties["entries"][key][4] is not None:
+                layer.setKeywordList(dictProperties["entries"][key][4])
+
+    def parseContext(self, context):
+        dictProperties={}
+
+        it = ET.iterparse(StringIO(context))
+        for _, el in it:
+            if '}' in el.tag:
+                el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
+        root = it.root
+
+        #TODO: optional abstract, publisher
+
+        #Parse project title (mandatory)
+        title_elem = root.find("title")
+        if title_elem is None:
+            self.log(logging.ERROR, u"Could not parse project title.")
+            return
+
+        dictProperties["title"]=title_elem.text
+
+        #TODO: maybe if the OWS server is enabled, we can go on and fill the service capabilities values
+
+        #Parse bbox, if it exists
+        where_elem = root.find("where")
+        if where_elem is not None:
+            pos_poly = where_elem.find("Polygon")
+            if pos_poly is not None:
+                pos_ext = pos_poly.find("exterior")
+                if pos_ext is not None:
+                    pos_ring = pos_ext.find("LinearRing")
+                    if pos_ring is not None:
+                        pos_elem = pos_ring.find("posList")
+                        if pos_elem is not None:
+                            dictProperties["bbox"]=pos_elem.text
+
+        entry_elems = root.findall("entry")
+        if entry_elems is not None:
+
+            dictProperties["entries"]={} # hash to store the layer entries
+            for entry_elem in entry_elems:
+                #TODO: add more optional attributes
+                lLayerProps=[] #[abstract, author, min_scale, max_scale, term]
+                # Read layer title (mandatory)
+                title_elem = entry_elem.find("title")
+                if title_elem is None:
+                    self.log(logging.ERROR, u"Could not parse layer title.")
+                    return
+
+                # Read layer abstract (optional)
+                abstract_elem = entry_elem.find("abstract")
+                lLayerProps.append(abstract_elem.text) if abstract_elem is not None else lLayerProps.append(None)
+
+                # Read layer author (optional)
+                author_elem = entry_elem.find("author")
+                if author_elem is not None:
+                    name_elem = author_elem.find("name")
+                    lLayerProps.append(name_elem.text) if name_elem is not None else lLayerProps.append(None)
+                else:
+                    lLayerProps.append(None)
+
+                # Read min and max scale (optional)
+                min_elem = entry_elem.find("minScaleDenominator")
+                lLayerProps.append(min_elem.text) if min_elem is not None else lLayerProps.append(None)
+
+                max_elem = entry_elem.find("maxScaleDenominator")
+                lLayerProps.append(max_elem.text) if max_elem is not None else lLayerProps.append(None)
+
+                # Read keyword (optional)
+                cat_elem = entry_elem.find("category")
+                if cat_elem is not None:
+                    term=cat_elem.get("term")
+                    lLayerProps.append(term) if term is not None else lLayerProps.append(None)
+                else:
+                    lLayerProps.append(None)
+
+                dictProperties["entries"][title_elem.text]=lLayerProps
+
+        return dictProperties
+
     def read(self, gpkg_path):
+
+        iface.newProject(True) # Clear project, before opening
+
         ''' Read QGIS project from GeoPackage '''
         # Check if it's a GeoPackage Database
         self.database_connect(gpkg_path)
@@ -230,71 +404,58 @@ class QGpkg:
             self.log(logging.ERROR, u"No valid GeoPackage selected.")
             return
 
-        # Read xml from the project in the Database
         try:
-            self.c.execute('SELECT name, xml FROM qgis_projects')
+            self.c.execute('SELECT table_name FROM gpkg_contents')
         except sqlite3.OperationalError:
-            self.log(logging.ERROR,  u"There is no Project file "
-                "in the database.")
+            self.log(logging.ERROR,  u"Unable to read table Name.")
             return
-        file_name, xml = self.c.fetchone()
+
+        table_names = self.c.fetchall()
+
+        #Load Layers
+        layers=self.loadLayers(gpkg_path)
+
+        db_name=QFileInfo(gpkg_path).baseName()
+
+        #Iterate over loaded layers
+        layers = QgsMapLayerRegistry.instance().mapLayers().values()
+        dictLayers={}
+        for layer in layers:
+            for row in table_names:
+                layer_name=row[0]
+                if layer.name()==layer_name or layer.name()== db_name + " " + layer_name:
+                    self.log(logging.DEBUG,  u"Layer found: " + layer_name + " for " + layer.name())
+                    dictLayers[layer_name]=layer.name()
+
+        #Find and apply Styles
+        for key, value in dictLayers.iteritems():
+            try:
+                self.c.execute("SELECT style_name FROM ows_style_reference where table_name like '" + key + "'")
+            except sqlite3.OperationalError:
+                self.log(logging.ERROR,  u"Could not find style "
+                    "for layer " + value )
+                return
+            styles= self.c.fetchone()
+
+            if styles is None:
+                self.log(logging.ERROR,  u"No style found "
+                    "for layer " + value )
+                return
+
+            style_name = styles[0]
+            self.loadStyle(style_name, key, value)
+
+        #Load OWS Context
         try:
-            xml_tree = ET.ElementTree()
-            root = ET.fromstring(xml)
-        except:
-            self.log(logging.ERROR, u"The xml code is corrupted.")
+            self.c.execute('SELECT content FROM ows_context')
+        except sqlite3.OperationalError:
+            self.log(logging.ERROR,  u"Unable to read table ows_context.")
             return
-        self.log(logging.DEBUG, u"Xml successfully read.")
-        xml_tree._setroot(root)
-        projectlayers = root.find("projectlayers")
 
-        # Layerpath in xml adjusted
-        tmp_folder = tempfile.mkdtemp()
-        project_path = os.path.join(tmp_folder, file_name)
-        for layer in projectlayers:
-            layer_element = layer.find("datasource")
-            layer_info = layer_element.text.split("|")
-            layer_path = self.make_path_absolute(gpkg_path, layer_info[0])
-            if layer_path.endswith('.gpkg'):
-                if len(layer_info) >= 2:
-                    for i in range(len(layer_info)):
-                        if i == 0:
-                            layer_element.text = layer_path
-                        else:
-                            layer_element.text += "|" + layer_info[i]
-                elif len(layer_info) == 1:
-                    layer_element.text = layer_path
-                self.log(logging.DEBUG,
-                         u"Layerpath from layer %s was adjusted." %
-                         layer.find("layername").text)
+        context = self.c.fetchone()
 
-        # Check if an image is available
-        composer_list = root.findall("Composer")
-        images = []
-        for composer in composer_list:
-            for comp in composer:
-                composer_picture = comp.find("ComposerPicture")
-                img = self.make_path_absolute(
-                    composer_picture.attrib['file'], project_path)
-                # If yes, the path will be adjusted
-                composer_picture.set('file', './' + os.path.basename(img))
-                self.log(logging.DEBUG,
-                         u"External image %s found." % os.path.basename(img))
-                images.append(img)
+        if context is None:
+            self.log(logging.ERROR,  u"No record found on table ows_context!.")
+            return
 
-        # and the image will be saved in the same folder as the project
-        if images:
-            self.c.execute("SELECT name, type, blob FROM qgis_resources")
-            images = self.c.fetchall()
-            for img in images:
-                name, type, blob = img
-                img_name = name + type
-                img_path = os.path.join(tmp_folder, img_name)
-                with open(img_path, 'wb') as file:
-                    file.write(blob)
-                self.log(logging.DEBUG, u"Image saved: %s" % img_name)
-
-        # Project is saved and started
-        xml_tree.write(project_path)
-        self.log(logging.DEBUG, u"Temporary project written.")
-        return project_path
+        self.loadContext(context[0],dictLayers)
