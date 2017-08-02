@@ -118,12 +118,11 @@ class QgisGeopackage(QObject):
 
         self.actionAbout = QAction(
             QIcon(":/plugins/QgisGeopackage/about.png"),
-            self.tr(u"About the Geopackage plugin"),
+            self.tr(u"About"),
             self.iface.mainWindow()
         )
         self.actionAbout.setWhatsThis(self.tr(u"About the Geopackage plugin"))
         self.iface.addPluginToMenu("&Qgis Geopackage", self.actionAbout)
-        self.toolbar.addAction(self.actionAbout)
         QObject.connect(self.actionAbout, SIGNAL("triggered()"), self.runAbout)
 
 
