@@ -10,8 +10,6 @@ about=This plugin reads and writes QGIS projects with related resources (e.g. im
 tracker=https://github.com/pka/qgpkg/issues
 repository=https://github.com/pka/qgpkg
 homepage=https://github.com/pka/qgpkg
-category=Plugins
-icon=write.png
 
 changelog=
   0.3.0
@@ -25,8 +23,6 @@ changelog=
     - Initial release
 
 tags=GeoPackage,gpkg
-
-homepage=https://github.com/pka/qgpkg
 category=Plugins
 icon=write.png
 
