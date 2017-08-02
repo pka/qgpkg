@@ -48,7 +48,7 @@ gpkg_rtree_index
 QGIS projects:
 small_world.qgs
 QGIS recources:
-qgis.png"""
+qgis.png (image/png)"""
     assert output == info
 
     conn = sqlite3.connect(gpkg_path)
@@ -58,7 +58,7 @@ qgis.png"""
     assert_equals('small_world.qgs', curs.fetchone()[0], 'small_world.qgs not found')
 
     curs.execute('SELECT name FROM qgis_resources')
-    assert_equals('qgis', curs.fetchone()[0], 'Image not found')
+    assert_equals('qgis.png', curs.fetchone()[0], 'Image not found')
 
     curs.execute("SELECT scope FROM gpkg_extensions WHERE extension_name = 'qgis'")
     assert_equals('read-write', curs.fetchone()[0], 'Extension registration missing')

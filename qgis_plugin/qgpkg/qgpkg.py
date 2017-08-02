@@ -85,11 +85,11 @@ class QGpkg:
             pass
 
         try:
-            rows = list(cur.execute('''SELECT name, type FROM qgis_resources'''))
+            rows = list(cur.execute('''SELECT name, mime_type FROM qgis_resources'''))
             if len(rows) > 0:
                 print("QGIS recources:")
                 for row in rows:
-                    print(row['name'] + row['type'])
+                    print(row['name'] + ' (%s)' % row['mime_type'])
         except sqlite3.Error:
             pass
 

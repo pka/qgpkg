@@ -6,6 +6,7 @@ import sys
 import os
 import sqlite3
 import tempfile
+import mimetypes
 import logging
 from qgis.core import QgsProject
 from PyQt4.QtCore import QFileInfo
@@ -122,14 +123,15 @@ class QGpkg_qgis(QGpkg):
             except sqlite3.OperationalError:
                 self.c.execute(
                     """CREATE TABLE IF NOT EXISTS qgis_resources
-                     (name TEXT, type TEXT, blob BLOB)""")
+                     (name TEXT, mime_type TEXT, content BLOB)""")
                 for image in images:
                     with open(image, 'rb') as input_file:
                         blob = input_file.read()
-                        name, type = os.path.splitext(os.path.basename(image))
+                        name = os.path.basename(image)
+                        mime_type = mimetypes.MimeTypes().guess_type(name)[0]
                         self.conn.execute(
                             """INSERT INTO qgis_resources \
-                            VALUES(?, ?, ?)""", (name, type, sqlite3.Binary(blob)))
+                            VALUES(?, ?, ?)""", (name, mime_type, sqlite3.Binary(blob)))
                         self.log(logging.DEBUG, u"Image %s was saved" % name)
         self.conn.commit()
 
@@ -195,11 +197,10 @@ class QGpkg_qgis(QGpkg):
 
         # and the image will be saved in the same folder as the project
         if images:
-            self.c.execute("SELECT name, type, blob FROM qgis_resources")
+            self.c.execute("SELECT name, mime_type, content FROM qgis_resources")
             images = self.c.fetchall()
             for img in images:
-                name, type, blob = img
-                img_name = name + type
+                img_name, mime_type, blob = img
                 img_path = os.path.join(tmp_folder, img_name)
                 with open(img_path, 'wb') as file:
                     file.write(blob)
