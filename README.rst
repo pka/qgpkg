@@ -9,17 +9,17 @@ QGIS mapping information in a GeoPackage database file.
 The OGC geopackage format was designed with the goal of being interoperable across a range of environments, in particular mobile devices operating in offline and near offline scenarios.
 
 This plugin introduces two approaches for storing mapping projects, based on two different geopackage extensions:
-the `QGIS extension <https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md>`_ and the `OWS context extension <https://github.com/pka/qgpkg/blob/master/ows_geopackage_extension.md>`_.
+the `QGIS extension <https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md>`_ and the `OWC context extension <https://github.com/pka/qgpkg/blob/master/owc_geopackage_extension.md>`_.
 
 The goal of the ``qgis geopackage extension`` is to enable users to share their QGIS projects, including style and resources.
 This extension stores a QGIS project file in one of the extension tables, which works for the described use case, but does not allow interoperability with other GIS software.
 
 .. image:: workflow-qgis.png
 
-The ``ows geopackage extension`` was designed with the specific goal of enabling interoperability with other GIS software, being completely based on OGC standards.
+The ``owc geopackage extension`` was designed with the specific goal of enabling interoperability with other GIS software, being completely based on OGC standards.
 The idea is to store styling using OGC:SLD, and the project context using OGC:OWS_Context, so that other software can encode/decode this information.
 
-.. image:: workflow-ows.png
+.. image:: workflow-owc.png
 
 In both extensions, data, resources and style are packed along with project information (e.g.: layer order or visibility, bounding box), enabling a self-contained, portable mapping project.
 
@@ -32,10 +32,10 @@ project in a GeoPackage file and another one for loading a QGIS project from a
 GeoPackage file.
 
 Support is given for loading multiple layers and styles from the geopackage. In the `examples <./examples>`_ folder you may find examples of
-geopackages using the `qgis <./examples/small_world.gpkg>`_ and `ows <./examples/multiple_layers.gpkg>`_ extensions.
+geopackages using the `qgis <./examples/small_world.gpkg>`_ and `owc <./examples/multiple_layers.gpkg>`_ extensions.
 
 Although the user can read from either extension, using a detection mechanism, currently the writing operation is only supported for the ``qgis extension``.
-If you are interested in writing geopackages using the ``ows extension``, please have a look at `ArcGIS GeoCat Bridge <https://www.geocat.net/bridge/>`_.
+If you are interested in writing geopackages using the ``owc extension``, please have a look at `ArcGIS GeoCat Bridge <https://www.geocat.net/bridge/>`_.
 
 
 qgpkg library and cli
@@ -67,7 +67,7 @@ History
 -------
 
 This plugin was initially created by Cédric Christen and Pirmin Kalberer (Sourcepole) using the ``qgis_extension`` approach.
-Later it was forked by Joana Simoes and Paul van Genuchten (GeoCat), who added support to the ``ows_extension``.
+Later it was forked by Joana Simoes and Paul van Genuchten (GeoCat), who added support to the ``owc_extension``.
 The fork was merged into the master branch, to create this version: a plugin which enables users to read projects using either geopackage extension.
 Support to writing in both extensions, is also envisioned for the near future.
 
