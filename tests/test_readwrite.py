@@ -3,13 +3,13 @@ import sys
 import tempfile
 import shutil
 import os
-from qgisgpkg.qgpkg import QGpkg
+from qgisgpkg.qgpkg_qgis import QGpkg_qgis
 import sqlite3
 from . import nolog
 
 
 def test_read_without_qgs():
-    gpkg = QGpkg('tests/data/small_world.gpkg', nolog)
+    gpkg = QGpkg_qgis('tests/data/small_world.gpkg', nolog)
     gpkg.read('tests/data/small_world.gpkg')
     gpkg.info()
     output = sys.stdout.getvalue().strip()
@@ -34,7 +34,7 @@ def test_write():
     tmp_folder = copy_to_tmp('tests/data')
     gpkg_path = os.path.join(tmp_folder, 'small_world.gpkg')
     qgs_path = os.path.join(tmp_folder, 'small_world.qgs')
-    gpkg = QGpkg(gpkg_path, nolog)
+    gpkg = QGpkg_qgis(gpkg_path, nolog)
     gpkg.write(qgs_path)
     gpkg.info()
     output = sys.stdout.getvalue().strip()

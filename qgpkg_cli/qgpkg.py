@@ -4,7 +4,7 @@ import argparse
 import sys
 import logging
 from qgisgpkg.qgpkg import QGpkg
-
+from qgisgpkg.qgpkg_qgis import QGpkg_qgis
 
 logger = logging.getLogger('qgpkg')
 logger.addHandler(logging.StreamHandler())
@@ -21,13 +21,13 @@ def info(args):
 
 
 def write(args):
-    gpkg = QGpkg(args.gpkg, log)
+    gpkg = QGpkg_qgis(args.gpkg, log)
     gpkg.write(args.qgs)
     return 0
 
 
 def read(args):
-    gpkg = QGpkg(args.gpkg, log)
+    gpkg = QGpkg_qgis(args.gpkg, log)
     gpkg.read(args.gpkg)
     return 0
 

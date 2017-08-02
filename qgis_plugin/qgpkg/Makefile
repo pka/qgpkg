@@ -61,7 +61,7 @@ RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g'
 
 QGISDIR=.qgis2
 
-default: compile
+default: compile qgpkg.py qgpkg_qgis.py qgpkg_owc.py
 
 compile: $(COMPILED_RESOURCE_FILES)
 
@@ -71,7 +71,13 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.qm : %.ts
 	$(LRELEASE) $<
 
-qgpkg.py : ../../qgisgpkg/qgpkg.py
+qgpkg.py: ../../qgisgpkg/qgpkg.py
+	cp $< $@
+
+qgpkg_qgis.py: ../../qgisgpkg/qgpkg_qgis.py
+	cp $< $@
+
+qgpkg_owc.py: ../../qgisgpkg/qgpkg_owc.py
 	cp $< $@
 
 test: compile transcompile
