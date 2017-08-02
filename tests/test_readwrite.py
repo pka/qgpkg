@@ -1,8 +1,10 @@
+from nose.tools import assert_equals
 import sys
 import tempfile
 import shutil
 import os
 from qgisgpkg.qgpkg import QGpkg
+import sqlite3
 from . import nolog
 
 
@@ -48,3 +50,15 @@ small_world.qgs
 QGIS recources:
 qgis.png"""
     assert output == info
+
+    conn = sqlite3.connect(gpkg_path)
+    curs = conn.cursor()
+
+    curs.execute('SELECT name FROM qgis_projects')
+    assert_equals('small_world.qgs', curs.fetchone()[0], 'small_world.qgs not found')
+
+    curs.execute('SELECT name FROM qgis_resources')
+    assert_equals('qgis', curs.fetchone()[0], 'Image not found')
+
+    curs.execute("SELECT scope FROM gpkg_extensions WHERE extension_name = 'qgis'")
+    assert_equals('read-write', curs.fetchone()[0], 'Extension registration missing')
