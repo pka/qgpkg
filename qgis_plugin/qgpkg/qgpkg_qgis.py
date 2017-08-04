@@ -2,13 +2,11 @@
 # Edit the original library file in the qgpkg directory and
 # execute `make` to update the QGIS plugin files.
 from __future__ import print_function
-import sys
 import os
 import sqlite3
 import tempfile
 import mimetypes
 import logging
-from PyQt4.QtCore import QFileInfo
 
 from xml.etree import ElementTree as ET
 
@@ -126,8 +124,10 @@ class QGpkg_qgis(QGpkg):
                         self.conn.execute(
                             """INSERT INTO qgis_resources \
                             VALUES(?, ?, ?)""", (image, mime_type, sqlite3.Binary(blob)))
-                    # TODO: forced overwrite
-                    self.log(logging.DEBUG, u"Image %s was saved" % image)
+                        self.log(logging.DEBUG, u"Image %s was saved" % image)
+                    else:
+                        # TODO: forced overwrite
+                        self.log(logging.DEBUG, u"Skipping existing image %s" % image)
         self.conn.commit()
 
     def read(self, gpkg_path):
