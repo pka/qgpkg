@@ -79,8 +79,7 @@ class QGpkg_qgis(QGpkg):
         images = []
         for composer in composer_list:
             for comp in composer:
-                img = self.make_path_absolute(
-                    comp.find("ComposerPicture").attrib['file'], project_path)
+                img = comp.find("ComposerPicture").attrib['file']
                 if img not in images:
                     self.log(logging.DEBUG, u"Image found: %s" % img)
                     images.append(img)
@@ -92,10 +91,10 @@ class QGpkg_qgis(QGpkg):
         self.database_connect(gpkg_path)
 
         # Create tables
-        self.c.execute('CREATE TABLE IF NOT EXISTS qgis_projects (name TEXT, xml TEXT)')
+        self.c.execute('CREATE TABLE IF NOT EXISTS qgis_projects (name TEXT PRIMARY KEY, xml TEXT NOT NULL)')
         self.c.execute(
             """CREATE TABLE IF NOT EXISTS qgis_resources
-             (name TEXT, mime_type TEXT, content BLOB)""")
+             (name TEXT PRIMARY KEY, mime_type TEXT NOT NULL, content BLOB NOT NULL)""")
         self.c.execute(
             'CREATE TABLE IF NOT EXISTS gpkg_extensions (table_name TEXT,column_name TEXT,extension_name TEXT NOT NULL,definition TEXT NOT NULL,scope TEXT NOT NULL,CONSTRAINT ge_tce UNIQUE (table_name, column_name, extension_name))')
         extension_record = (None, None, 'qgis',
@@ -119,17 +118,17 @@ class QGpkg_qgis(QGpkg):
 
         if images:
             for image in images:
-                with open(image, 'rb') as input_file:
+                img = self.make_path_absolute(image, project_path)
+                with open(img, 'rb') as input_file:
                     blob = input_file.read()
-                    name = os.path.basename(image)
-                    mime_type = mimetypes.MimeTypes().guess_type(name)[0]
-                    self.c.execute('SELECT count(1) FROM qgis_resources WHERE name=?', (name,))
+                    mime_type = mimetypes.MimeTypes().guess_type(image)[0]
+                    self.c.execute('SELECT count(1) FROM qgis_resources WHERE name=?', (image,))
                     if self.c.fetchone()[0] == 0:
                         self.conn.execute(
                             """INSERT INTO qgis_resources \
-                            VALUES(?, ?, ?)""", (name, mime_type, sqlite3.Binary(blob)))
+                            VALUES(?, ?, ?)""", (image, mime_type, sqlite3.Binary(blob)))
                     # TODO: forced overwrite
-                    self.log(logging.DEBUG, u"Image %s was saved" % name)
+                    self.log(logging.DEBUG, u"Image %s was saved" % image)
         self.conn.commit()
 
     def read(self, gpkg_path):
