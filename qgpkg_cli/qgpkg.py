@@ -28,7 +28,8 @@ def write(args):
 
 def read(args):
     gpkg = QGpkg_qgis(args.gpkg, log)
-    gpkg.read(args.gpkg)
+    project_path = gpkg.read(args.gpkg)
+    print "Project extracted: %s" % project_path
     return 0
 
 

@@ -66,7 +66,7 @@ QGIS recources:
     assert_equals('read-write', curs.fetchone()[0], 'Extension registration missing')
     assert curs.fetchone() is None
 
-    # Test overwriting with same project 
+    # Test overwriting with same project
     gpkg.write(qgs_path)
 
     curs.execute('SELECT name FROM qgis_projects')

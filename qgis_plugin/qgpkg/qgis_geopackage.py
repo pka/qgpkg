@@ -168,6 +168,7 @@ class QgisGeopackage(QObject):
             gpkg = self.detect_gpkg_extension(gpkg_path, qlog)
             if gpkg is not None:
                 project_path = gpkg.read(gpkg_path)
+                QgsProject.instance().read(QFileInfo(project_path))
             else:
                 self.log(logging.ERROR,
                          u"We were unable to read this geopackage file")

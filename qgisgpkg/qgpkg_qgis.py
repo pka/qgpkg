@@ -8,7 +8,6 @@ import sqlite3
 import tempfile
 import mimetypes
 import logging
-from qgis.core import QgsProject
 from PyQt4.QtCore import QFileInfo
 
 from xml.etree import ElementTree as ET
@@ -204,9 +203,8 @@ class QGpkg_qgis(QGpkg):
 
         # Project is saved and started
         xml_tree.write(project_path)
-        self.log(logging.DEBUG, u"Temporary project written.")
-        #return project_path
-        QgsProject.instance().read(QFileInfo(project_path))
+        self.log(logging.DEBUG, u"Temporary project written: %s" % project_path)
+        return project_path
 
     def read_project(self, path):
         ''' Check if it's a file and give ElementTree object back '''
