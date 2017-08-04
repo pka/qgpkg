@@ -56,9 +56,27 @@ qgis.png (image/png)"""
 
     curs.execute('SELECT name FROM qgis_projects')
     assert_equals('small_world.qgs', curs.fetchone()[0], 'small_world.qgs not found')
+    assert curs.fetchone() is None
 
     curs.execute('SELECT name FROM qgis_resources')
     assert_equals('qgis.png', curs.fetchone()[0], 'Image not found')
+    assert curs.fetchone() is None
 
     curs.execute("SELECT scope FROM gpkg_extensions WHERE extension_name = 'qgis'")
     assert_equals('read-write', curs.fetchone()[0], 'Extension registration missing')
+    assert curs.fetchone() is None
+
+    # Test overwriting with same project 
+    gpkg.write(qgs_path)
+
+    curs.execute('SELECT name FROM qgis_projects')
+    assert_equals('small_world.qgs', curs.fetchone()[0], 'small_world.qgs not found')
+    assert curs.fetchone() is None
+
+    curs.execute('SELECT name FROM qgis_resources')
+    assert_equals('qgis.png', curs.fetchone()[0], 'Image not found')
+    assert curs.fetchone() is None
+
+    curs.execute("SELECT scope FROM gpkg_extensions WHERE extension_name = 'qgis'")
+    assert_equals('read-write', curs.fetchone()[0], 'Extension registration missing')
+    assert curs.fetchone() is None
