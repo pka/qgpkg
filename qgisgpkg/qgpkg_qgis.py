@@ -31,7 +31,7 @@ class QGpkg_qgis(QGpkg):
         # If something is messed up with the file, the Method will stop
         if not xmltree:
             self.log(logging.ERROR, u"Couldn't read project (wrong file format)")
-            return
+            return None
 
         root = xmltree.getroot()
         projectlayers = root.find("projectlayers")
@@ -59,7 +59,7 @@ class QGpkg_qgis(QGpkg):
                         #  GeoPackage it can't be written
                         self.log(logging.ERROR, u"The project uses layers "
                                                 "from different GeoPackage databases.")
-                        return
+                        return None
             if gpkg_found and len(sources) > 1:
                 self.log(
                     logging.WARNING,
@@ -69,7 +69,7 @@ class QGpkg_qgis(QGpkg):
         if not gpkg_found:
             self.log(logging.ERROR, u"There is no GeoPackage layer "
                                     "in the project.")
-            return
+            return None
 
         # Check for images in the composer of the project
         composer_list = root.findall("Composer")
@@ -130,13 +130,15 @@ class QGpkg_qgis(QGpkg):
                         self.log(logging.DEBUG, u"Skipping existing image %s" % image)
         self.conn.commit()
 
+        return gpkg_path
+
     def read(self, gpkg_path):
         ''' Read QGIS project from GeoPackage '''
         # Check if it's a GeoPackage Database
         self.database_connect(gpkg_path)
         if not self.check_gpkg(gpkg_path):
             self.log(logging.ERROR, u"No valid GeoPackage selected.")
-            return
+            return None
 
         # Read xml from the project in the Database
         try:
@@ -144,14 +146,14 @@ class QGpkg_qgis(QGpkg):
         except sqlite3.OperationalError:
             self.log(logging.ERROR, u"There is no Project file "
                                     "in the database.")
-            return
+            return None
         file_name, xml = self.c.fetchone()
         try:
             xml_tree = ET.ElementTree()
             root = ET.fromstring(xml)
         except:
             self.log(logging.ERROR, u"The xml code is corrupted.")
-            return
+            return None
         self.log(logging.DEBUG, u"Xml successfully read.")
         xml_tree._setroot(root)
         projectlayers = root.find("projectlayers")

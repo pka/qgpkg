@@ -153,10 +153,13 @@ class QgisGeopackage(QObject):
             project_path = project.fileName()
 
         gpkg = QGpkg_qgis(project_path, qlog)
-        gpkg.write(project_path)
+        gpkg_path = gpkg.write(project_path)
 
         if tmpfile:
             os.remove(tmpfile)
+
+        if gpkg_path is not None:
+            message_bar.pushMessage("Project saved in %s" % gpkg_path)
 
     def read(self):
         """Reads a geopackage file polymorphically, according to the auto-detected extension """
