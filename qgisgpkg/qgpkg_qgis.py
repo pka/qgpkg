@@ -72,14 +72,14 @@ class QGpkg_qgis(QGpkg):
             return None
 
         # Check for images in the composer of the project
-        composer_list = root.findall("Composer")
         images = []
-        for composer in composer_list:
+        for composer in root.findall("Composer"):
             for comp in composer:
-                img = comp.find("ComposerPicture").attrib['file']
-                if img not in images:
-                    self.log(logging.DEBUG, u"Image found: %s" % img)
-                    images.append(img)
+                for composer_picture in comp.findall("ComposerPicture"):
+                    img = composer_picture.attrib['file']
+                    if img not in images:
+                        self.log(logging.DEBUG, u"Image found: %s" % img)
+                        images.append(img)
 
         # Write data in database
         project_name = os.path.basename(project_path)
@@ -179,18 +179,17 @@ class QGpkg_qgis(QGpkg):
                          layer.find("layername").text)
 
         # Check if an image is available
-        composer_list = root.findall("Composer")
         images = []
-        for composer in composer_list:
+        for composer in root.findall("Composer"):
             for comp in composer:
-                composer_picture = comp.find("ComposerPicture")
-                img = self.make_path_absolute(
-                    composer_picture.attrib['file'], project_path)
-                # If yes, the path will be adjusted
-                composer_picture.set('file', './' + os.path.basename(img))
-                self.log(logging.DEBUG,
-                         u"External image %s found." % os.path.basename(img))
-                images.append(img)
+                for composer_picture in comp.findall("ComposerPicture"):
+                    img = self.make_path_absolute(
+                        composer_picture.attrib['file'], project_path)
+                    # If yes, the path will be adjusted
+                    composer_picture.set('file', './' + os.path.basename(img))
+                    self.log(logging.DEBUG,
+                             u"External image %s found." % os.path.basename(img))
+                    images.append(img)
 
         # and the image will be saved in the same folder as the project
         if images:
