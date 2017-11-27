@@ -205,6 +205,7 @@ class QGpkg_owc (QGpkg):
                 self.log(logging.ERROR, u"Layer '" + name + "' failed to load!")
                 return;
 
+            title = layer.name()
             # layer.setShortName(name)
 
             # Check visibility (mandatory)
@@ -218,7 +219,7 @@ class QGpkg_owc (QGpkg):
             # Read style (optional)
             style_elem = offering_elem.find("styleSet")
             if style_elem is not None:
-                self.loadOWCStyle(style_elem, title_elem.text)
+                self.loadOWCStyle(style_elem, title)
 
         # Read other OWC (optional) elements ##################
 

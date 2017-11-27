@@ -36,10 +36,10 @@ from qgpkg_qgis import QGpkg_qgis
 from qgpkgAbout import qgpkgAbout
 
 # Debug code for Pycharm
-#import sys
-#sys.path.append('/home/joana/Downloads/pycharm-2017.3/debug-eggs/pycharm-debug.egg')
-#import pydevd
-#pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+import sys
+sys.path.append('/home/joana/Downloads/pycharm-2017.3/debug-eggs/pycharm-debug.egg')
+import pydevd
+pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
 message_bar = None
 
