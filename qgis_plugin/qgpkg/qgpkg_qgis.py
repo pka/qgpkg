@@ -14,12 +14,6 @@ from qgpkg import QGpkg
 
 logger = logging.getLogger('qgpkg_qgis')
 
-# Debug code for Pycharm
-#sys.path.append('/home/joana/Downloads/pycharm-2016.3.3/debug-eggs/pycharm-debug.egg')
-#import pydevd
-
-#pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
-
 class QGpkg_qgis(QGpkg):
     """Read and write QGIS mapping information in a GeoPackage database file, using this spec:
     https://github.com/pka/qgpkg/blob/master/qgis_geopackage_extension.md
