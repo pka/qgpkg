@@ -7,18 +7,14 @@ import sqlite3
 import tempfile
 import mimetypes
 import logging
+from qgis.core import QgsProject
+from PyQt4.QtCore import QFileInfo
 
 from xml.etree import ElementTree as ET
 
 from qgpkg import QGpkg
 
 logger = logging.getLogger('qgpkg_qgis')
-
-# Debug code for Pycharm
-#sys.path.append('/home/joana/Downloads/pycharm-2016.3.3/debug-eggs/pycharm-debug.egg')
-#import pydevd
-
-#pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
 
 class QGpkg_qgis(QGpkg):
     """Read and write QGIS mapping information in a GeoPackage database file, using this spec:
@@ -205,7 +201,7 @@ class QGpkg_qgis(QGpkg):
         # Project is saved and started
         xml_tree.write(project_path)
         self.log(logging.DEBUG, u"Temporary project written: %s" % project_path)
-        return project_path
+        QgsProject.instance().read(QFileInfo(project_path))
 
     def read_project(self, path):
         ''' Check if it's a file and give ElementTree object back '''

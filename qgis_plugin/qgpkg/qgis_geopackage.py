@@ -35,6 +35,12 @@ from qgpkg_qgis import QGpkg_qgis
 
 from qgpkgAbout import qgpkgAbout
 
+# Debug code for Pycharm
+import sys
+#sys.path.append('/home/joana/Downloads/pycharm-2017.3/debug-eggs/pycharm-debug.egg')
+#import pydevd
+#pydevd.settrace('localhost', port=53100, stdoutToServer=True, stderrToServer=True)
+
 message_bar = None
 
 
@@ -171,7 +177,6 @@ class QgisGeopackage(QObject):
             gpkg = self.detect_gpkg_extension(gpkg_path, qlog)
             if gpkg is not None:
                 project_path = gpkg.read(gpkg_path)
-                QgsProject.instance().read(QFileInfo(project_path))
             else:
                 self.log(logging.ERROR,
                          u"We were unable to read this geopackage file")
